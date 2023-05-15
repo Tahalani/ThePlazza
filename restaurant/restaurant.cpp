@@ -1,14 +1,14 @@
 /*
 ** EPITECH PROJECT, 2023
-** theplazza
+** B-CCP-400-PAR-4-1-theplazza-taha.alani
 ** File description:
-** Parsing
+** restaurant
 */
 
-#include "parsing.hpp"
-#include <csignal>
+#include "restaurant.hpp"
+#include "client/client.hpp"
 
-int Parsing::getArguments(int ac, char **av)
+int Restaurant::getArguments(int ac, const char *av[])
 {
     if (ac != 4) {
         std::cerr << "Usage: ./plazza [multiplier] [cooks] [time]" << std::endl;
@@ -22,4 +22,11 @@ int Parsing::getArguments(int ac, char **av)
     _nb_cooks = std::stoi(av[2]);
     _time = std::stoi(av[3]);
     return (0);
+}
+
+int Restaurant::plazza_restaurant(const char *av[])
+{
+    if (getArguments(4, av) == -1)
+        return 84;
+    return 0;
 }
