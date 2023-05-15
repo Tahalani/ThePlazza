@@ -19,7 +19,6 @@
             int checkOrder(void);
         private:
             std::string buffer;
-
     };
 
 #endif /* !CLIENT_HPP_ */

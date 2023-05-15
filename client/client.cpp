@@ -13,6 +13,7 @@ int Client::checkOrder()
     std::string type;
     std::string size;
     std::string number;
+
     type = buffer.substr(0, buffer.find(" "));
     if (type == "regina" || type == "margarita" || type == "americana" || type == "fantasia") {
         buffer.erase(0, buffer.find(" ") + 1);
@@ -24,16 +25,13 @@ int Client::checkOrder()
                 std::cout << "type: " << type << std::endl;
                 std::cout << "size: " << size << std::endl;
                 std::cout << "number: " << number[1] << std::endl;
-            }
-            else
+            } else
                 std::cerr << "ERROR: In .pizzas parsing" << std::endl;
-        }
-        else
+        } else
             std::cerr << "ERROR: In .pizzas parsing" << std::endl;
-    }
-    else
+    } else
         std::cerr << "ERROR: In .pizzas parsing" << std::endl;
-    return (0);
+    return 0;
 }
 
 int Client::takeOrder(void)
