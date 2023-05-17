@@ -3,4 +3,5 @@
 plazza
 
 # development
+.vscode/
 .idea/

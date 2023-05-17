@@ -17,7 +17,7 @@ OBJ			=	$(SRC:.cpp=.o)
 
 NAME		=	plazza
 
-CXXFLAGS	=	-Wall -Wextra -I./include/
+CXXFLAGS	=	-Wall -Wextra
 
 all:	$(NAME)
 
