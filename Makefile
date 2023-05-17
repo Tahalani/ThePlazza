@@ -7,13 +7,13 @@
 
 NAME	=	plazza
 
-SRC 	=	restaurant/client/parsing/parsing.cpp \
-			restaurant/client/client.cpp \
-			restaurant/server/server.cpp \
-			restaurant/restaurant.cpp \
-			restaurant/main.cpp \
+SRC 	=	src/client/parsing/parsing.cpp \
+		src/client/client.cpp \
+		src/server/server.cpp \
+		src/restaurant.cpp \
+		src/main.cpp \
 
-CXXFLAGS	= -g -Wall -Wextra -I./include/
+CXXFLAGS	= -Wall -Wextra -I./include/
 
 OBJ	=	$(SRC:.cpp=.o)
 
