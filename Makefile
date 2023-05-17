@@ -22,7 +22,7 @@ CXXFLAGS	=	-Wall -Wextra
 all:	$(NAME)
 
 $(NAME): $(OBJ)
-	g++ $(CXXFLAGS)	-o $(NAME) $(OBJ)
+	g++ $(CXXFLAGS) -o $(NAME) $(OBJ)
 
 clean:
 	rm -f *.gcda *.gcno
