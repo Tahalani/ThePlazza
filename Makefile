@@ -8,6 +8,7 @@
 SRC			=	src/client/parsing/parsing.cpp \
 				src/client/client.cpp \
 				src/server/server.cpp \
+				src/server/kitchen.cpp \
 				src/Configuration.cpp \
 				src/Main.cpp \
 				src/Restaurant.cpp
