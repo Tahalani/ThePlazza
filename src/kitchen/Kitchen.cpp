@@ -5,7 +5,7 @@
 ** kitchen
 */
 
-#include "kitchen.hpp"
+#include "Kitchen.hpp"
 
 bool Kitchen::checkIngredients(int quantity, PizzaType type, PizzaSize size)
 {

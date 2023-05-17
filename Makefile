@@ -5,13 +5,11 @@
 ## Makefile
 ##
 
-SRC			=	src/client/parsing/parsing.cpp \
-				src/client/client.cpp \
-				src/server/server.cpp \
-				src/server/kitchen.cpp \
+SRC			=	src/kitchen/Kitchen.cpp \
+				src/reception/Reception.cpp \
+				src/reception/Shell.cpp \
 				src/Configuration.cpp \
-				src/Main.cpp \
-				src/Restaurant.cpp
+				src/Main.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
 
