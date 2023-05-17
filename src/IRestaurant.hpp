@@ -29,12 +29,10 @@ struct PizzaCommand {
     int quantity;
 };
 
-class Irestaurant {
+class IRestaurant {
     public:
-        Irestaurant() = default;
-        ~Irestaurant() = default;
-    protected:
-    private:
+        IRestaurant() = default;
+        ~IRestaurant() = default;
 };
 
-#endif /* !IRESTAURANT_HPP_ */
+#endif

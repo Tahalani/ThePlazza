@@ -10,9 +10,9 @@
 
     #include <iostream>
     #include <csignal>
-    #include "../Irestaurant.hpp"
+    #include "../IRestaurant.hpp"
 
-    class Client : public Irestaurant {
+    class Client : public IRestaurant {
         public:
             Client() {};
             ~Client() {};

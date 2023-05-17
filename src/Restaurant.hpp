@@ -11,9 +11,9 @@
     #include <iostream>
     #include <csignal>
     #include <vector>
-    #include "Irestaurant.hpp"
+    #include "IRestaurant.hpp"
 
-    class Restaurant : public Irestaurant {
+    class Restaurant : public IRestaurant {
         public:
             Restaurant() {};
             ~Restaurant() {};
