@@ -5,24 +5,29 @@
 ## Makefile
 ##
 
-NAME	=	plazza
+SRC			=	src/client/parsing/parsing.cpp \
+				src/client/client.cpp \
+				src/server/server.cpp \
+				src/Configuration.cpp \
+				src/Main.cpp \
+				src/Restaurant.cpp
 
-SRC 	=	src/client/parsing/parsing.cpp \
-		src/client/client.cpp \
-		src/server/server.cpp \
-		src/restaurant.cpp \
-		src/main.cpp \
+OBJ			=	$(SRC:.cpp=.o)
 
-CXXFLAGS	= -Wall -Wextra -I./include/
+NAME		=	plazza
 
-OBJ	=	$(SRC:.cpp=.o)
+CXXFLAGS	=	-Wall -Wextra -I./include/
 
 all:	$(NAME)
+
 $(NAME): $(OBJ)
-	g++ $(CXXFLAGS)	-o $(NAME)	$(OBJ)
+	g++ $(CXXFLAGS)	-o $(NAME) $(OBJ)
 
 clean:
 	rm -f *.gcda *.gcno
+
+debug: CXXFLAGS += -g3
+debug: re
 
 fclean:	clean
 	rm -f $(NAME)

@@ -8,7 +8,7 @@
 #ifndef SERVER_HPP_
     #define SERVER_HPP_
 
-    #include "../Irestaurant.hpp"
+    #include "../IRestaurant.hpp"
 
     class Server : public Irestaurant {
         public:

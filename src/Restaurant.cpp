@@ -5,7 +5,7 @@
 ** restaurant
 */
 
-#include "restaurant.hpp"
+#include "Restaurant.hpp"
 #include "client/client.hpp"
 
 int Restaurant::getArguments(int ac, const char *av[])

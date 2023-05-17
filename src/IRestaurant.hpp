@@ -23,19 +23,16 @@ enum PizzaSize {
     XXL
 };
 
-class Irestaurant {
+class IRestaurant {
     public:
-        Irestaurant() = default;
-        ~Irestaurant() = default;
+        IRestaurant() = default;
+        ~IRestaurant() = default;
 
     struct PizzaCommand {
         PizzaType type;
         PizzaSize size;
         int quantity;
     };
-
-    protected:
-    private:
 };
 
-#endif /* !IRESTAURANT_HPP_ */
+#endif
