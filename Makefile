@@ -7,9 +7,11 @@
 
 NAME	=	plazza
 
-SRC 	=	parsing/parsing.cpp \
-			client/client.cpp \
-			main.cpp	\
+SRC 	=	restaurant/client/parsing/parsing.cpp \
+			restaurant/client/client.cpp \
+			restaurant/server/server.cpp \
+			restaurant/restaurant.cpp \
+			restaurant/main.cpp \
 
 CXXFLAGS	= -g -Wall -Wextra -I./include/
 

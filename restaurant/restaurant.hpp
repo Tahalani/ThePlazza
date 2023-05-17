@@ -1,47 +1,29 @@
 /*
 ** EPITECH PROJECT, 2023
-** theplazza
+** B-CCP-400-PAR-4-1-theplazza-taha.alani
 ** File description:
-** Parsing
+** restaurant
 */
 
-#ifndef PARSING_HPP_
-    #define PARSING_HPP_
+#ifndef RESTAURANT_HPP_
+    #define RESTAURANT_HPP_
 
     #include <iostream>
     #include <csignal>
     #include <vector>
+    #include "Irestaurant.hpp"
 
-enum PizzaType {
-    Regina,
-    Margarita,
-    Americana,
-    Fantasia
-};
-
-enum PizzaSize {
-    S,
-    M,
-    L,
-    XL,
-    XXL
-};
-
-struct PizzaCommand {
-    PizzaType type;
-    PizzaSize size;
-    int quantity;
-};
-
-    class Parsing {
+    class Restaurant : public Irestaurant {
         public:
-            Parsing() {};
-            ~Parsing() {};
-            int getArguments(int ac, char **av);
+            Restaurant() {};
+            ~Restaurant() {};
+            int getArguments(int ac, const char *av[]);
             int getCockingTime() const { return _cocking_time; };
             int getNbCooks() const { return _nb_cooks; };
             int getTime() const { return _time; };
             std::vector<PizzaCommand> getPizzaCommand() const { return _pizza_command; };
+            int plazza_restaurant(const char *av[]);
+        protected:
         private:
             int _cocking_time;
             int _nb_cooks;
@@ -49,4 +31,4 @@ struct PizzaCommand {
             std::vector<PizzaCommand> _pizza_command;
     };
 
-#endif /* !PARSING_HPP_ */
+#endif /* !RESTAURANT_HPP_ */
