@@ -9,11 +9,11 @@
     #define IRESTAURANT_HPP_
 
 enum PizzaType {
-        Regina,
-        Margarita,
-        Americana,
-        Fantasia
-    };
+    Regina,
+    Margarita,
+    Americana,
+    Fantasia
+};
 
 enum PizzaSize {
     S,
@@ -23,17 +23,16 @@ enum PizzaSize {
     XXL
 };
 
+struct PizzaCommand {
+    PizzaType type;
+    PizzaSize size;
+    int quantity;
+};
+
 class Irestaurant {
     public:
         Irestaurant() = default;
         ~Irestaurant() = default;
-
-    struct PizzaCommand {
-        PizzaType type;
-        PizzaSize size;
-        int quantity;
-    };
-
     protected:
     private:
 };

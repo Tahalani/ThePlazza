@@ -10,6 +10,7 @@ NAME	=	plazza
 SRC 	=	src/client/parsing/parsing.cpp \
 		src/client/client.cpp \
 		src/server/server.cpp \
+		src/server/kitchen.cpp	\
 		src/restaurant.cpp \
 		src/main.cpp \
 
