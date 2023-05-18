@@ -9,7 +9,7 @@
 
 #include <utility>
 
-plazza::ConfigurationException::ConfigurationException(std::string message) : _message(std::move(message)) {
+plazza::ConfigurationException::ConfigurationException(std::string message): _message(std::move(message)) {
 
 }
 

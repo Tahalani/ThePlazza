@@ -7,7 +7,7 @@
 
 #include "Reception.hpp"
 
-plazza::Reception::Reception() : _shell() {
+plazza::Reception::Reception(): _shell() {
 
 }
 
