@@ -15,6 +15,7 @@ OBJ			=	$(SRC:.cpp=.o)
 
 NAME		=	plazza
 
+CPPFLAGS	=	-iquote include/ -iquote src/ -iquote src/reception
 CXXFLAGS	=	-Wall -Wextra -pthread -std=c++17
 
 all:	$(NAME)

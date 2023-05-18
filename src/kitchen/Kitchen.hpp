@@ -6,41 +6,31 @@
 */
 
 #ifndef KITCHEN_HPP_
-    #define KITCHEN_HPP_
+#define KITCHEN_HPP_
 
-    #include <iostream>
-    #include <vector>
-    #include <map>
-    #include <thread>
-    #include <mutex>
-    #include <unordered_map>
-    #include "../IRestaurant.hpp"
-    #include "../Configuration.hpp"
+#include <iostream>
+#include <map>
+#include <thread>
+#include <unordered_map>
+#include <vector>
+#include <queue>
+#include "Configuration.hpp"
+#include "../../include/PizzaData.hpp"
 
-enum Ingredients {
-    Dough,
-    Tomato,
-    Gruyere,
-    Ham,
-    Mushrooms,
-    Steak,
-    Eggplant,
-    GoatCheese,
-    ChiefLove
-};
-
-    class Kitchen : public IRestaurant {
+namespace plazza {
+    class Kitchen {
         public:
             Kitchen(plazza::Configuration &conf);
             ~Kitchen() {};
             void kitchenRoutine(std::string message);
-            bool checkIngredients(const PizzaCommand &command);
-        protected:
-            std::vector<int> _ingredients;
-            std::unordered_map<PizzaType, std::pair<std::unordered_map<Ingredients, int>, int>> _ingredients_per_pizza;
-            std::vector<std::thread> _threads;
-            std::mutex _mutex;
+            int checkQueue(std::vector<PizzaTaken> _pizzaTaken, int cooksPerKitchen);
+            void *algorithmKitchen(void *arg);
         private:
+            std::vector<int> _ingredients;
+            std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
+            std::vector<std::thread> _threads;
+            std::queue<PizzaTaken> _pizzaQueue;
     };
+}
 
-#endif /* !KITCHEN_HPP_ */
+#endif
