@@ -5,17 +5,16 @@
 ** main
 */
 
-#include "Configuration.hpp"
-#include "kitchen/Kitchen.hpp"
-
 #include <iostream>
-#include <thread>
+#include "Configuration.hpp"
+#include "Reception.hpp"
 
 int main(int argc, char const *argv[])
 {
     try {
         plazza::Configuration config(argc, argv);
-        Kitchen kitchen(config);
+        plazza::Reception reception;
+        reception.run();
     } catch (plazza::ConfigurationException &e) {
         std::cerr << e.what() << std::endl;
         return 84;

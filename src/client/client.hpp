@@ -10,7 +10,7 @@
 
     #include <iostream>
     #include <csignal>
-    #include "../IRestaurant.hpp"
+    #include "PizzaData.hpp"
 
     class Client : public IRestaurant {
         public:
