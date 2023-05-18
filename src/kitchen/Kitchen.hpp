@@ -27,11 +27,11 @@ namespace plazza {
             void kitchenRoutine(int nbr);
             bool checkIngredients(plazza::PizzaCommand &command);
             void *algorithmKitchen(void *arg);
+            std::vector<std::thread> _threads;
 
         private:
             std::vector<int> _ingredients;
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
-            std::vector<std::thread> _threads;
             // std::condition_variable _cond_furnace;
             // std::unique_lock<std::mutex> _mutex_reception;
             std::mutex _mutex_reception;

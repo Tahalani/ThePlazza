@@ -46,21 +46,19 @@ plazza::Kitchen::Kitchen(Configuration &conf)
     for (int i = 0; i < conf.getCooksPerKitchen(); i++) {
         _threads.emplace_back(&Kitchen::kitchenRoutine, this, i);
     }
-    for (auto &thread : _threads) {
-        thread.join();
-    }
 }
 
 void plazza::Kitchen::kitchenRoutine(int nbr)
 {
 
-    std::unique_lock<std::mutex> lock(_mutex_reception); // Verrouillage du mutex
+    std::unique_lock<std::mutex> lock(_mutex_reception);
     std::cout << "Furnace number: " << nbr << " ready to cook" << std::endl;
 
     while (1) {
-        _cond_furnace.wait(lock); // Attente avec le verrou actif
-        std::cout << "out wait" << std::endl;
-        break;
+        _cond_furnace.wait(lock);
+        std::cout << "I'll cook this pizza for " << "5 second" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        std::cout << "Pizza cooked" << std::endl;
     }
 }
 
@@ -70,8 +68,6 @@ bool plazza::Kitchen::checkIngredients(PizzaCommand &command)
 }
 
 void *plazza::Kitchen::algorithmKitchen([[maybe_unused]] void *arg) {
-    std::cout << "ping" << std::endl;
-    std::unique_lock<std::mutex> lock(_mutex_reception); // Verrouillage du mutex
     _cond_furnace.notify_one();
     return nullptr;
 }
