@@ -5,8 +5,9 @@
 ** kitchen
 */
 
-#include "Kitchen.hpp"
 #include <thread>
+#include <mutex>
+#include "Kitchen.hpp"
 
 Kitchen::Kitchen(plazza::Configuration &conf)
 {
@@ -40,13 +41,3 @@ bool Kitchen::checkIngredients(const PizzaCommand &command)
     }
     return true;
 }
-
-// void Kitchen::createPizzaThread(const PizzaCommand &command)
-// {
-//     int n = command.quantity;
-
-//     for (int i = 0; i < n; ++i) {
-//         std::thread pizzaThread(&kitchenRoutine, this, command.type, command.size);
-//         pizzaThread.join();
-//     }
-// }
