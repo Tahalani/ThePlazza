@@ -12,19 +12,7 @@
     #include <vector>
     #include <map>
     #include <unordered_map>
-    #include "../IRestaurant.hpp"
-
-enum Ingredients {
-    Dough,
-    Tomato,
-    Gruyere,
-    Ham,
-    Mushrooms,
-    Steak,
-    Eggplant,
-    GoatCheese,
-    ChiefLove
-};
+    #include "../../include/PizzaData.hpp"
 
     class Kitchen : public IRestaurant {
         public:
