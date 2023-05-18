@@ -6,28 +6,30 @@
 */
 
 #ifndef KITCHEN_HPP_
-    #define KITCHEN_HPP_
+#define KITCHEN_HPP_
 
-    #include <iostream>
-    #include <map>
-    #include <thread>
-    #include <unordered_map>
-    #include <vector>
-    #include "PizzaData.hpp"
+#include <iostream>
+#include <map>
+#include <thread>
+#include <unordered_map>
+#include <vector>
+#include "Configuration.hpp"
+#include "PizzaData.hpp"
 
-    class Kitchen : public IRestaurant {
+namespace plazza {
+    class Kitchen {
         public:
             Kitchen(plazza::Configuration &conf);
             ~Kitchen() {};
             void kitchenRoutine(std::string message);
-            bool checkIngredients(PizzaCommand &command);
-            void *algorithmKitchen(void *arg) { return nullptr; };
+            bool checkIngredients(plazza::PizzaCommand &command);
+            void *algorithmKitchen(void *arg);
 
-        protected:
-            std::vector<int> _ingredients;
-            std::unordered_map<PizzaType, std::pair<std::unordered_map<Ingredients, int>, int>> _ingredients_per_pizza;
-            std::vector<std::thread> _threads;
         private:
+            std::vector<int> _ingredients;
+            std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
+            std::vector<std::thread> _threads;
     };
+}
 
 #endif

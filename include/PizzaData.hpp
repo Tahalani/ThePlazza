@@ -2,11 +2,11 @@
 ** EPITECH PROJECT, 2023
 ** B-CCP-400-PAR-4-1-theplazza-taha.alani
 ** File description:
-** Irestaurant
+** PizzaData.hpp
 */
 
-#ifndef IRESTAURANT_HPP_
-    #define IRESTAURANT_HPP_
+#ifndef PIZZADATA_HPP_
+    #define PIZZADATA_HPP_
 
 namespace plazza {
     enum class PizzaType {
