@@ -5,7 +5,8 @@
 ## Makefile
 ##
 
-SRC			=	src/reception/Reception.cpp \
+SRC			=	src/kitchen/Kitchen.cpp \
+				src/reception/Reception.cpp \
 				src/reception/Shell.cpp \
 				src/Configuration.cpp \
 				src/Main.cpp
@@ -15,7 +16,7 @@ OBJ			=	$(SRC:.cpp=.o)
 NAME		=	plazza
 
 CPPFLAGS	=	-iquote include/ -iquote src/reception
-CXXFLAGS	=	-Wall -Wextra
+CXXFLAGS	=	-Wall -Wextra -pthread -std=c++17
 
 all:	$(NAME)
 

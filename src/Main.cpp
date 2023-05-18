@@ -5,10 +5,9 @@
 ** main
 */
 
+#include <iostream>
 #include "Configuration.hpp"
 #include "Reception.hpp"
-
-#include <iostream>
 
 int main(int argc, char const *argv[])
 {
