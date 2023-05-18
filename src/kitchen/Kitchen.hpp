@@ -33,8 +33,8 @@ enum Ingredients {
             Kitchen(plazza::Configuration &conf);
             ~Kitchen() {};
             void kitchenRoutine(std::string message);
-            bool checkIngredients(PizzaCommand &command);
-            void *algorithmKitchen(void *arg) { return nullptr; };
+            bool checkIngredients(const PizzaCommand &command);
+            // void createPizzaThread(const PizzaCommand &command);
         protected:
             std::vector<int> _ingredients;
             std::unordered_map<PizzaType, std::pair<std::unordered_map<Ingredients, int>, int>> _ingredients_per_pizza;

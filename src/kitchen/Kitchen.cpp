@@ -6,6 +6,7 @@
 */
 
 #include "Kitchen.hpp"
+#include <thread>
 
 Kitchen::Kitchen(plazza::Configuration &conf)
 {
@@ -31,7 +32,21 @@ void Kitchen::kitchenRoutine(std::string message)
     std::cout << message << std::endl;
 }
 
-bool Kitchen::checkIngredients(PizzaCommand &command)
+bool Kitchen::checkIngredients(const PizzaCommand &command)
 {
+    for (auto &i : _ingredients_per_pizza[command.type].first) {
+        if (i.second > _ingredients[i.first])
+            return false;
+    }
     return true;
 }
+
+// void Kitchen::createPizzaThread(const PizzaCommand &command)
+// {
+//     int n = command.quantity;
+
+//     for (int i = 0; i < n; ++i) {
+//         std::thread pizzaThread(&kitchenRoutine, this, command.type, command.size);
+//         pizzaThread.join();
+//     }
+// }
