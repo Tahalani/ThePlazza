@@ -43,7 +43,7 @@ plazza::Kitchen::Kitchen(Configuration &conf)
             {PizzaType::Fantasia, {FantasiaIngr, 4 * 1000}},
     };
 
-    for (int i = 0; i < conf.getCooksPerKitchen(); i++) {
+    for (int i = 0; i <= conf.getCooksPerKitchen(); i++) {
         _threads_furnace.emplace_back(&Kitchen::kitchenRoutine, this, i);
     }
     _thread_refill = std::thread(&Kitchen::refillRoutine, this, conf);
@@ -54,10 +54,12 @@ void plazza::Kitchen::refillRoutine(Configuration conf)
     std::cout << "Refill ready !" << std::endl;
     while (1) {
         std::this_thread::sleep_for(std::chrono::seconds(conf.getRefillTime()));
-        for (std::size_t i = 0; i < _ingredients.size(); i++)
-            if (_ingredients[i] < 5)
+        for (int i = 0; i < 9; i++) {
+            if (_ingredients[i] < 5) {
                 _ingredients[i] += 1;
-        std::cout << "Refill ingredient " << std::endl;
+                std::cout << "Refill ingredient " << std::endl;
+            }
+        }
     }
 }
 
@@ -68,8 +70,9 @@ void plazza::Kitchen::kitchenRoutine(int nbr)
 
     while (1) {
         _cond_furnace.wait(lock);
-        std::cout << "I'll cook this pizza for " << "5 second" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        lock.unlock();
+        std::cout << "I'll cook this pizza for " << "2 seconds" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         std::cout << "Pizza cooked" << std::endl;
     }
 }
