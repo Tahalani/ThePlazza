@@ -33,6 +33,7 @@ namespace plazza {
             std::vector<std::thread> _threads_furnace;
             std::thread _thread_refill;
 
+        private:
             std::vector<int> _ingredients;
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
             std::mutex _mutex_reception;
@@ -41,4 +42,4 @@ namespace plazza {
     };
 }
 
-#endif
+#endif /* !KITCHEN_HPP_ */

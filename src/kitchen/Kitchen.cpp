@@ -77,7 +77,7 @@ void plazza::Kitchen::kitchenRoutine(int nbr)
     }
 }
 
-bool plazza::Kitchen::checkIngredients(PizzaCommand &command)
+bool plazza::Kitchen::checkIngredients([[maybe_unused]] PizzaCommand &command)
 {
     return true;
 }

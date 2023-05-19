@@ -24,6 +24,6 @@ void plazza::Reception::run() {
     }
 }
 
-void plazza::Reception::executeOrder(const std::vector<PizzaCommand> &order) {
+void plazza::Reception::executeOrder([[maybe_unused]]  const std::vector<PizzaCommand> &order) {
 
 }
