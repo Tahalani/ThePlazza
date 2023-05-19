@@ -18,9 +18,10 @@ int main(int argc, char const *argv[])
         plazza::Reception reception;
         plazza::Kitchen kitchen(config);
         kitchen.algorithmKitchen(nullptr);
-        for (auto &thread : kitchen._threads) {
+        for (auto &thread : kitchen._threads_furnace) {
             thread.join();
         }
+        kitchen._thread_refill.join();
         // reception.run();
     } catch (plazza::ConfigurationException &e) {
         std::cerr << e.what() << std::endl;

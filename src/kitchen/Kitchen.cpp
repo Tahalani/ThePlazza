@@ -44,13 +44,25 @@ plazza::Kitchen::Kitchen(Configuration &conf)
     };
 
     for (int i = 0; i < conf.getCooksPerKitchen(); i++) {
-        _threads.emplace_back(&Kitchen::kitchenRoutine, this, i);
+        _threads_furnace.emplace_back(&Kitchen::kitchenRoutine, this, i);
+    }
+    _thread_refill = std::thread(&Kitchen::refillRoutine, this, conf);
+}
+
+void plazza::Kitchen::refillRoutine(Configuration conf)
+{
+    std::cout << "Refill ready !" << std::endl;
+    while (1) {
+        std::this_thread::sleep_for(std::chrono::seconds(conf.getRefillTime()));
+        for (int i = 0; i < 9; i++)
+            if (_ingredients[i] < 5)
+                _ingredients[i] += 1;
+        std::cout << "Refill ingredient " << std::endl;
     }
 }
 
 void plazza::Kitchen::kitchenRoutine(int nbr)
 {
-
     std::unique_lock<std::mutex> lock(_mutex_reception);
     std::cout << "Furnace number: " << nbr << " ready to cook" << std::endl;
 
@@ -68,6 +80,6 @@ bool plazza::Kitchen::checkIngredients(PizzaCommand &command)
 }
 
 void *plazza::Kitchen::algorithmKitchen([[maybe_unused]] void *arg) {
-    _cond_furnace.notify_one();
+    _cond_furnace.notify_all();
     return nullptr;
 }
