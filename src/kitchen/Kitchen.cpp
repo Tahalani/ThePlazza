@@ -54,7 +54,7 @@ void plazza::Kitchen::refillRoutine(Configuration conf)
     std::cout << "Refill ready !" << std::endl;
     while (1) {
         std::this_thread::sleep_for(std::chrono::seconds(conf.getRefillTime()));
-        for (int i = 0; i < 9; i++)
+        for (std::size_t i = 0; i < _ingredients.size(); i++)
             if (_ingredients[i] < 5)
                 _ingredients[i] += 1;
         std::cout << "Refill ingredient " << std::endl;

@@ -12,8 +12,6 @@
 #include <sstream>
 #include <string>
 
-// #define min(a, b) ((a) < (b) ? (a) : (b))
-
 namespace plazza {
     class ConfigurationException : std::exception {
         public:
