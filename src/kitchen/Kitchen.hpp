@@ -13,8 +13,9 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <queue>
 #include "Configuration.hpp"
-#include "PizzaData.hpp"
+#include "../../include/PizzaData.hpp"
 
 namespace plazza {
     class Kitchen {
@@ -22,13 +23,14 @@ namespace plazza {
             Kitchen(plazza::Configuration &conf);
             ~Kitchen() {};
             void kitchenRoutine(std::string message);
-            bool checkIngredients(plazza::PizzaCommand &command);
+            int checkQueue(std::vector<PizzaTaken> _pizzaTaken, int cooksPerKitchen);
             void *algorithmKitchen(void *arg);
-
         private:
             std::vector<int> _ingredients;
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
             std::vector<std::thread> _threads;
+            std::queue<PizzaTaken> _pizzaQueue;
+            PizzaTaken _currentPizza;
     };
 }
 
