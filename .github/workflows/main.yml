@@ -1,0 +1,27 @@
+name: Compilation
+
+on:
+  push:
+    branches-ignore:
+      - "ga-ignore-*"
+  pull_request:
+    branches-ignore:
+      - "ga-ignore-*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v3
+
+        with:
+          fetch-depth: 0
+
+      - name: Compilation
+        timeout-minutes: 2
+        run: make
+
+      - name: Clean execution
+        run: make clean
