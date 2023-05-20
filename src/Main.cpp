@@ -7,22 +7,14 @@
 
 #include <iostream>
 #include "Configuration.hpp"
-#include "kitchen/Kitchen.hpp"
 #include "Reception.hpp"
-
 
 int main(int argc, char const *argv[])
 {
     try {
         plazza::Configuration config(argc, argv);
-        plazza::Reception reception;
-        plazza::Kitchen kitchen(config);
-        kitchen.algorithmKitchen(nullptr);
-        for (auto &thread : kitchen._threads_furnace) {
-            thread.join();
-        }
-        kitchen._thread_refill.join();
-        // reception.run();
+        plazza::Reception reception(config);
+        reception.run();
     } catch (plazza::ConfigurationException &e) {
         std::cerr << e.what() << std::endl;
         return 84;

@@ -41,6 +41,11 @@ namespace plazza {
         PizzaSize size;
         int quantity;
     };
+
+    struct PizzaTaken {
+        PizzaType type;
+        PizzaSize size;
+    };
 }
 
 #endif

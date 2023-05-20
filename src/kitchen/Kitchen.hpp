@@ -8,13 +8,13 @@
 #ifndef KITCHEN_HPP_
 #define KITCHEN_HPP_
 
-
 #include <iostream>
 #include <map>
 #include <thread>
 #include <unordered_map>
 #include <vector>
 #include <condition_variable>
+#include <queue>
 
 #include "Configuration.hpp"
 #include "PizzaData.hpp"
@@ -42,4 +42,4 @@ namespace plazza {
     };
 }
 
-#endif /* !KITCHEN_HPP_ */
+#endif

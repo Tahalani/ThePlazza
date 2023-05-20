@@ -5,6 +5,8 @@
 ** kitchen
 */
 
+#include <thread>
+#include <mutex>
 #include "Kitchen.hpp"
 
 plazza::Kitchen::Kitchen(Configuration &conf)
@@ -79,7 +81,20 @@ void plazza::Kitchen::kitchenRoutine(int nbr)
 
 bool plazza::Kitchen::checkIngredients([[maybe_unused]] PizzaCommand &command)
 {
-    return true;
+    int pizza_possibles = 0;
+    bool curent_pizza = false;
+
+    for (auto &pizza : _pizzaTaken) {
+        if (_pizzaQueue.size() < (size_t) cooksPerKitchen) {
+            if (!curent_pizza) {
+                _currentPizza = pizza;
+                curent_pizza = true;
+            }
+            _pizzaQueue.push(pizza);
+            pizza_possibles++;
+        }
+    }
+    return pizza_possibles;
 }
 
 void *plazza::Kitchen::algorithmKitchen([[maybe_unused]] void *arg) {
