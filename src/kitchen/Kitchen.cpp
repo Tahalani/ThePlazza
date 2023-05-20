@@ -45,20 +45,41 @@ plazza::Kitchen::Kitchen(Configuration &conf)
             {PizzaType::Fantasia, {FantasiaIngr, 4 * 1000}},
     };
 
-    for (int i = 0; i < conf.getCooksPerKitchen(); i++) {
-        _threads.emplace_back(&Kitchen::kitchenRoutine, this, "Kitchen");
+    for (int i = 0; i <= conf.getCooksPerKitchen(); i++) {
+        _threads_furnace.emplace_back(&Kitchen::kitchenRoutine, this, i);
     }
-    for (auto &thread : _threads) {
-        thread.join();
-    }
+    _thread_refill = std::thread(&Kitchen::refillRoutine, this, conf);
 }
 
-void plazza::Kitchen::kitchenRoutine(std::string message)
+void plazza::Kitchen::refillRoutine(Configuration conf)
 {
-    std::cout << message << std::endl;
+    std::cout << "Refill ready !" << std::endl;
+    while (1) {
+        std::this_thread::sleep_for(std::chrono::seconds(conf.getRefillTime()));
+        for (std::size_t i = 0; i < _ingredients.size(); i += 1) {
+            if (_ingredients[i] < 5) {
+                _ingredients[i] += 1;
+                std::cout << "Refill ingredient " << std::endl;
+            }
+        }
+    }
 }
 
-int plazza::Kitchen::checkQueue(std::vector<PizzaTaken> _pizzaTaken, int cooksPerKitchen)
+void plazza::Kitchen::kitchenRoutine(int nbr)
+{
+    std::unique_lock<std::mutex> lock(_mutex_reception);
+    std::cout << "Furnace number: " << nbr << " ready to cook" << std::endl;
+
+    while (1) {
+        _cond_furnace.wait(lock);
+        lock.unlock();
+        std::cout << "I'll cook this pizza for " << "2 seconds" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::cout << "Pizza cooked" << std::endl;
+    }
+}
+
+bool plazza::Kitchen::checkIngredients([[maybe_unused]] PizzaCommand &command)
 {
     int pizza_possibles = 0;
     bool curent_pizza = false;
@@ -77,5 +98,6 @@ int plazza::Kitchen::checkQueue(std::vector<PizzaTaken> _pizzaTaken, int cooksPe
 }
 
 void *plazza::Kitchen::algorithmKitchen([[maybe_unused]] void *arg) {
+    _cond_furnace.notify_all();
     return nullptr;
 }
