@@ -64,8 +64,8 @@ int plazza::Kitchen::checkQueue(std::vector<PizzaTaken> _pizzaTaken, int cooksPe
     bool curent_pizza = false;
 
     for (auto &pizza : _pizzaTaken) {
-        if (_pizzaQueue.size() < cooksPerKitchen) {
-            if (curent_pizza == false) {
+        if (_pizzaQueue.size() < (size_t) cooksPerKitchen) {
+            if (!curent_pizza) {
                 _currentPizza = pizza;
                 curent_pizza = true;
             }

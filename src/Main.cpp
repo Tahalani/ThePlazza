@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 {
     try {
         plazza::Configuration config(argc, argv);
-        plazza::Reception reception;
+        plazza::Reception reception(config);
         reception.run();
     } catch (plazza::ConfigurationException &e) {
         std::cerr << e.what() << std::endl;

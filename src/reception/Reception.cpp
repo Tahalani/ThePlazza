@@ -5,9 +5,13 @@
 ** Reception.cpp
 */
 
+#include <iostream>
+#include <unistd.h>
+#include "Communication.hpp"
+#include "Kitchen.hpp"
 #include "Reception.hpp"
 
-plazza::Reception::Reception(): _shell() {
+plazza::Reception::Reception(const Configuration &config): _config(config) {
 
 }
 
@@ -26,4 +30,16 @@ void plazza::Reception::run() {
 
 void plazza::Reception::executeOrder(const std::vector<PizzaCommand> &order) {
 
+}
+
+void plazza::Reception::createKitchen() {
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        throw CommunicationException("Error while creating kitchen: fork() failed");
+    } else if (pid == 0) {
+        new Kitchen(this->_config);
+    } else {
+        this->_kitchens.push_back(pid);
+    }
 }
