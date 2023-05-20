@@ -30,6 +30,7 @@ namespace plazza {
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
             std::vector<std::thread> _threads;
             std::queue<PizzaTaken> _pizzaQueue;
+            PizzaTaken _currentPizza;
     };
 }
 
