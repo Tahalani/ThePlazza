@@ -5,6 +5,7 @@
 ** PizzaOrder.cpp
 */
 
+#include <cstddef>
 #include "PizzaOrder.hpp"
 
 plazza::PizzaOrder::PizzaOrder(const std::vector<PizzaCommand> &order, size_t id): _id(id) {
