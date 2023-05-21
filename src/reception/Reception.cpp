@@ -17,7 +17,7 @@ plazza::Reception::Reception(const Configuration &config): _config(config), _nex
 
 void plazza::Reception::run() {
     bool exit = false;
-    char exitType = static_cast<char>(plazza::MessageType::EXIT);
+    MessageType exitType = MessageType::EXIT;
 
     while (!exit) {
         try {
@@ -32,7 +32,7 @@ void plazza::Reception::run() {
         }
     }
     for (auto &kitchen : this->_kitchens) {
-        this->sendMessage<char>(exitType, kitchen);
+        this->_ipc.sendMessage<MessageType>(exitType, kitchen);
     }
 }
 
@@ -50,7 +50,7 @@ void plazza::Reception::executeOrder(const PizzaOrder &order) {
         for (auto &kitchen : this->_kitchens) {
             if (taken)
                 break;
-            this->sendMessage(pizza, kitchen);
+            this->_ipc.sendMessage(pizza, kitchen);
             taken = this->waitForKitchenResponse(kitchen);
         }
         if (!taken) {
@@ -65,7 +65,7 @@ void plazza::Reception::messageHandler(plazza::MessageType type) {
 
     switch (type) {
         case plazza::MessageType::EXIT:
-            pid = this->receiveMessage<pid_t>();
+            pid = this->_ipc.receiveMessage<pid_t>();
             for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); ++it) {
                 if (*it == pid) {
                     this->_kitchens.erase(it);
@@ -76,8 +76,7 @@ void plazza::Reception::messageHandler(plazza::MessageType type) {
             break;
 
         case plazza::MessageType::PIZZA:
-            pizza = this->receiveMessage<Pizza>();
-            // TODO: Pizza received
+            pizza = this->_ipc.receiveMessage<Pizza>();
             break;
 
         default:
@@ -87,13 +86,12 @@ void plazza::Reception::messageHandler(plazza::MessageType type) {
 
 
 bool plazza::Reception::waitForKitchenResponse(pid_t pid) {
-    char message = this->receiveMessage<char>();
-    auto type = static_cast<plazza::MessageType>(message);
+    auto message = this->_ipc.receiveMessage<MessageType>();
 
-    if (type == plazza::MessageType::PIZZA_RESPONSE) {
-        return this->receiveMessage<bool>();
+    if (message == plazza::MessageType::PIZZA_RESPONSE) {
+        return this->_ipc.receiveMessage<bool>();
     } else {
-        this->messageHandler(type);
+        this->messageHandler(message);
         return this->waitForKitchenResponse(pid);
     }
 }
@@ -105,7 +103,7 @@ void plazza::Reception::createKitchen(const Pizza &pizza) {
         throw CommunicationException("Error while creating kitchen: fork() failed");
     }
     if (pid == 0) {
-        Kitchen(this->_config, pizza, this->_nextKitchenId);
+        Kitchen(this->_nextKitchenId, this->_config, this->_ipc, pizza);
     } else {
         this->_logger.log("New kitchen opened with pid " + std::to_string(pid));
         this->_kitchens.push_back(pid);

@@ -7,9 +7,10 @@
 
 #include <thread>
 #include <mutex>
+#include "Communication.hpp"
 #include "Kitchen.hpp"
 
-plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &ipc, const Pizza &firstPizza) : _id(id), _config(config)
+plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &ipc, const Pizza &firstPizza) : _id(id), _ipc(ipc), _parent_pid(getppid())
 {
     std::unordered_map<Ingredients, int> ReginaIngr = {
             {Ingredients::Dough, 1},
@@ -39,17 +40,18 @@ plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &
 
     this->_ingredients = {5, 5, 5, 5, 5, 5, 5, 5, 5};
     this->_ingredients_per_pizza = {
-            {PizzaType::Regina, {ReginaIngr, 2 * 1000}},
-            {PizzaType::Margarita, {MargaritaIngr, 1 * 1000}},
-            {PizzaType::Americana, {AmericanaIngr, 2 * 1000}},
-            {PizzaType::Fantasia, {FantasiaIngr, 4 * 1000}},
+            {PizzaType::Regina, {ReginaIngr, 2}},
+            {PizzaType::Margarita, {MargaritaIngr, 1}},
+            {PizzaType::Americana, {AmericanaIngr, 2}},
+            {PizzaType::Fantasia, {FantasiaIngr, 4}},
     };
 
     for (int i = 0; i <= config.getCooksPerKitchen(); i++) {
-        this->_cooks.emplace_back(&Kitchen::kitchenRoutine, this, i);
+        this->_cooks.emplace_back(&Kitchen::kitchenRoutine, this, config.getTimeMultiplier());
     }
-    this->_refill = std::thread(&Kitchen::refillRoutine, this, config);
+    this->_refill = std::thread(&Kitchen::refillRoutine, this, config.getRefillTime());
     this->_pizzaQueue.push(firstPizza);
+
     this->_cookCondVar.notify_one();
 
     while (1) {
@@ -57,9 +59,10 @@ plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &
     }
 }
 
-void plazza::Kitchen::kitchenRoutine(int nbr)
+void plazza::Kitchen::kitchenRoutine(float multiplier)
 {
-    this->log("Cook " + std::to_string(nbr) + " is ready to cook");
+    float millis = 0;
+    plazza::MessageType pizzaType = MessageType::PIZZA;
     std::unique_lock<std::mutex> lock(this->_kitchenMutex);
 
     while (true) {
@@ -71,16 +74,17 @@ void plazza::Kitchen::kitchenRoutine(int nbr)
         Pizza pizza = this->_pizzaQueue.front();
         this->_pizzaQueue.pop();
         lock.unlock();
-        std::cout << "I'll cook this pizza for " << "2 seconds" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        std::cout << "Pizza cooked" << std::endl;
+        millis = (float) this->_ingredients_per_pizza[pizza.type].second * 1000 * multiplier;
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(millis)));
+        this->_ipc.sendMessage(pizzaType, this->_parent_pid);
+        this->_ipc.sendMessage(pizza, this->_parent_pid);
     }
 }
 
-void plazza::Kitchen::refillRoutine(Configuration conf)
+void plazza::Kitchen::refillRoutine(int refillTime)
 {
     while (1) {
-        std::this_thread::sleep_for(std::chrono::seconds(conf.getRefillTime()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(refillTime));
         for (size_t i = 0; i < _ingredients.size(); i += 1) {
             if (_ingredients[i] < 5) {
                 _ingredients[i] += 1;

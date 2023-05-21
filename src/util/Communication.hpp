@@ -8,6 +8,8 @@
 #ifndef COMMUNICATION_HPP_
 #define COMMUNICATION_HPP_
 
+#include <iostream>
+
 #include <csignal>
 #include <exception>
 #include <sys/msg.h>
@@ -30,7 +32,6 @@ namespace plazza {
             Communication();
             ~Communication();
 
-        protected:
             template<typename T>
             struct Message {
                 long type;

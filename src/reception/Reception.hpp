@@ -15,7 +15,7 @@
 #include "Shell.hpp"
 
 namespace plazza {
-    class Reception : Communication {
+    class Reception {
         public:
             explicit Reception(const Configuration &config);
 
@@ -32,6 +32,7 @@ namespace plazza {
 
             Shell _shell;
             Configuration _config;
+            Communication _ipc;
             Logger _logger;
             std::vector<PizzaOrder> _orders;
             std::vector<pid_t> _kitchens;

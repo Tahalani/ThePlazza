@@ -15,22 +15,22 @@
 #include <condition_variable>
 #include <thread>
 #include <queue>
-
+#include "Communication.hpp"
 #include "Configuration.hpp"
 #include "PizzaData.hpp"
 
 namespace plazza {
     class Kitchen {
         public:
-            Kitchen(plazza::Configuration &config, const Pizza &firstPizza, size_t id);
-            void kitchenRoutine(int nbr);
-            void refillRoutine(plazza::Configuration conf);
+            Kitchen(size_t id, plazza::Configuration &config, const Communication &ipc, const Pizza &firstPizza);
+            void kitchenRoutine(float timeMultiplier);
+            void refillRoutine(int refillTime);
 
         private:
             void log(const std::string &message) const;
 
             size_t _id;
-            plazza::Configuration _config;
+            plazza::Communication _ipc;
             std::vector<int> _ingredients;
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
             std::queue<plazza::Pizza> _pizzaQueue;
@@ -39,6 +39,7 @@ namespace plazza {
             std::condition_variable _cookCondVar;
             std::vector<std::thread> _cooks;
             std::thread _refill;
+            pid_t _parent_pid;
     };
 }
 
