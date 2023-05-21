@@ -20,12 +20,13 @@ NAME		=	plazza
 
 CPPFLAGS	=	-iquote include/ -iquote src/ \
 				-iquote src/kitchen -iquote src/reception -iquote src/util
-CXXFLAGS	=	-Wall -Wextra -pthread -std=c++17
+CXXFLAGS	=	-Wall -Wextra -std=c++17
+LDLIBS		=	-lpthread
 
 all:	$(NAME)
 
 $(NAME): $(OBJ)
-	g++ $(CXXFLAGS) -o $(NAME) $(OBJ)
+	g++ $(CXXFLAGS) -o $(NAME) $(OBJ) $(LDLIBS)
 
 clean:
 	rm -f *.gcda *.gcno
