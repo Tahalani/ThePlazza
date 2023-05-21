@@ -69,12 +69,14 @@ plazza::PizzaCommand plazza::Shell::parseOrder(std::string &order) {
         throw plazza::CommandException(order + ": Invalid quantity");
     }
     return PizzaCommand {
+        {
         this->_pizzaTypes[command_match[1]],
-        this->_pizzaSizes[command_match[2]],
+        this->_pizzaSizes[command_match[2]]
+        },
         quantity
     };
 }
 
 void plazza::Shell::sendPrompt() {
-    std::cout << "> " << std::endl;
+    std::cout << "> ";
 }

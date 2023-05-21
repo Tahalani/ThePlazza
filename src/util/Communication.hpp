@@ -30,6 +30,7 @@ namespace plazza {
             Communication();
             ~Communication();
 
+        protected:
             template<typename T>
             struct Message {
                 long type;

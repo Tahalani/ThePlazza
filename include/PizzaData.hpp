@@ -9,6 +9,12 @@
     #define PIZZADATA_HPP_
 
 namespace plazza {
+    enum class MessageType {
+        EXIT,
+        PIZZA,
+        PIZZA_RESPONSE,
+    };
+
     enum class PizzaType {
         Regina,
         Margarita,
@@ -36,16 +42,16 @@ namespace plazza {
         ChiefLove
     };
 
-    struct PizzaCommand {
+    struct Pizza {
         PizzaType type;
         PizzaSize size;
-        int quantity;
     };
 
-    struct PizzaTaken {
-        PizzaType type;
-        PizzaSize size;
+    struct PizzaCommand : Pizza {
+        int quantity;
     };
 }
+
+bool operator ==(const plazza::Pizza &a, const plazza::Pizza &b);
 
 #endif

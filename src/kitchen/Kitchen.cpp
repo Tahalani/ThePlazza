@@ -46,7 +46,7 @@ plazza::Kitchen::Kitchen(Configuration &conf)
     };
 
     for (int i = 0; i <= conf.getCooksPerKitchen(); i++) {
-        _threads_furnace.emplace_back(&Kitchen::kitchenRoutine, this, i);
+        _cooks.emplace_back(&Kitchen::kitchenRoutine, this, i);
     }
     _thread_refill = std::thread(&Kitchen::refillRoutine, this, conf);
 }
@@ -56,7 +56,7 @@ void plazza::Kitchen::refillRoutine(Configuration conf)
     std::cout << "Refill ready !" << std::endl;
     while (1) {
         std::this_thread::sleep_for(std::chrono::seconds(conf.getRefillTime()));
-        for (std::size_t i = 0; i < _ingredients.size(); i += 1) {
+        for (size_t i = 0; i < _ingredients.size(); i += 1) {
             if (_ingredients[i] < 5) {
                 _ingredients[i] += 1;
                 std::cout << "Refill ingredient " << std::endl;
@@ -84,7 +84,7 @@ bool plazza::Kitchen::checkIngredients([[maybe_unused]] PizzaCommand &command)
     int pizza_possibles = 0;
     bool curent_pizza = false;
 
-    for (auto &pizza : _pizzaTaken) {
+    /*for (auto &pizza : _pizzaTaken) {
         if (_pizzaQueue.size() < (size_t) cooksPerKitchen) {
             if (!curent_pizza) {
                 _currentPizza = pizza;
@@ -93,7 +93,7 @@ bool plazza::Kitchen::checkIngredients([[maybe_unused]] PizzaCommand &command)
             _pizzaQueue.push(pizza);
             pizza_possibles++;
         }
-    }
+    }*/
     return pizza_possibles;
 }
 

@@ -10,10 +10,10 @@
 
 #include <iostream>
 #include <map>
-#include <thread>
 #include <unordered_map>
 #include <vector>
 #include <condition_variable>
+#include <thread>
 #include <queue>
 
 #include "Configuration.hpp"
@@ -28,10 +28,6 @@ namespace plazza {
             bool checkIngredients(plazza::PizzaCommand &command);
             void *algorithmKitchen(void *arg);
             void refillRoutine(plazza::Configuration conf);
-            // std::vector<std::thread> getThreadsFurnace() { return _threads_furnace; };
-            // std::thread getThreadRefill() const { return _thread_refill; };
-            std::vector<std::thread> _threads_furnace;
-            std::thread _thread_refill;
 
         private:
             std::vector<int> _ingredients;
@@ -39,6 +35,8 @@ namespace plazza {
             std::mutex _mutex_reception;
             std::condition_variable _cond_furnace;
             std::unique_lock<std::mutex> _lock_reception;
+            std::vector<std::thread> _cooks;
+            std::thread _thread_refill;
     };
 }
 

@@ -6,9 +6,11 @@
 ##
 
 SRC			=	src/kitchen/Kitchen.cpp \
-				src/reception/Communication.cpp \
+				src/reception/PizzaOrder.cpp \
 				src/reception/Reception.cpp \
 				src/reception/Shell.cpp \
+				src/util/Communication.cpp \
+				src/util/Logger.cpp \
 				src/Configuration.cpp \
 				src/Main.cpp
 
@@ -17,7 +19,7 @@ OBJ			=	$(SRC:.cpp=.o)
 NAME		=	plazza
 
 CPPFLAGS	=	-iquote include/ -iquote src/ \
-				-iquote src/kitchen -iquote src/reception
+				-iquote src/kitchen -iquote src/reception -iquote src/util
 CXXFLAGS	=	-Wall -Wextra -pthread -std=c++17
 
 all:	$(NAME)

@@ -21,7 +21,6 @@ namespace plazza {
     class CommandException : std::exception {
         public:
             explicit CommandException(std::string message);
-            ~CommandException() override = default;
 
             [[nodiscard]] const char *what() const noexcept override;
 
@@ -32,7 +31,6 @@ namespace plazza {
     class Shell {
         public:
             Shell();
-            ~Shell() = default;
 
             std::vector<PizzaCommand> getNextOrder();
 

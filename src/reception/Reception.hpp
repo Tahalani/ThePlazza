@@ -9,25 +9,33 @@
 #define RECEPTION_HPP_
 
 #include "Configuration.hpp"
-#include "Communication.hpp"
+#include "util/Communication.hpp"
+#include "util/Logger.hpp"
+#include "PizzaOrder.hpp"
 #include "Shell.hpp"
 
 namespace plazza {
-    class Reception {
+    class Reception : Communication {
         public:
             explicit Reception(const Configuration &config);
-            ~Reception() = default;
 
             void run();
 
         private:
-            void executeOrder(const std::vector<PizzaCommand> &order);
+            PizzaOrder &registerOrder(const std::vector<PizzaCommand> &command);
+            void executeOrder(const PizzaOrder &order);
             void createKitchen();
+            void logOrderReceived(size_t id);
+            void logOrderReady(size_t id);
+            void messageHandler(MessageType type);
+            bool waitForKitchenResponse(pid_t pid);
 
             Shell _shell;
-            Communication _ipc;
             Configuration _config;
+            Logger _logger;
+            std::vector<PizzaOrder> _orders;
             std::vector<pid_t> _kitchens;
+            size_t _nextId;
     };
 }
 
