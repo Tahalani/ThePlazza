@@ -24,7 +24,7 @@ namespace plazza {
         private:
             PizzaOrder &registerOrder(const std::vector<PizzaCommand> &command);
             void executeOrder(const PizzaOrder &order);
-            void createKitchen();
+            void createKitchen(const Pizza &pizza);
             void logOrderReceived(size_t id);
             void logOrderReady(size_t id);
             void messageHandler(MessageType type);
@@ -35,7 +35,8 @@ namespace plazza {
             Logger _logger;
             std::vector<PizzaOrder> _orders;
             std::vector<pid_t> _kitchens;
-            size_t _nextId;
+            size_t _nextOrderId;
+            size_t _nextKitchenId;
     };
 }
 

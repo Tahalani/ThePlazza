@@ -36,7 +36,6 @@ std::vector<plazza::PizzaCommand> plazza::Shell::getNextOrder() {
     std::string str;
     std::vector<plazza::PizzaCommand> vec = {};
 
-    this->sendPrompt();
     auto &res = std::getline(std::cin, buffer);
 
     if (!res) {
@@ -45,11 +44,7 @@ std::vector<plazza::PizzaCommand> plazza::Shell::getNextOrder() {
     do {
         pos = buffer.find(';');
         str = buffer.substr(0, pos);
-        try {
-            vec.push_back(this->parseOrder(str));
-        } catch (plazza::CommandException &e) {
-            std::cout << e.what() << std::endl;
-        }
+        vec.push_back(this->parseOrder(str));
         buffer.erase(0, pos + 1);
     } while (pos != std::string::npos);
     return vec;
@@ -75,8 +70,4 @@ plazza::PizzaCommand plazza::Shell::parseOrder(std::string &order) {
         },
         quantity
     };
-}
-
-void plazza::Shell::sendPrompt() {
-    std::cout << "> ";
 }

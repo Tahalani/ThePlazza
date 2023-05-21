@@ -36,7 +36,6 @@ namespace plazza {
 
         private:
             PizzaCommand parseOrder(std::string &order);
-            void sendPrompt();
 
             std::unordered_map<std::string, PizzaType> _pizzaTypes;
             std::unordered_map<std::string, PizzaSize> _pizzaSizes;

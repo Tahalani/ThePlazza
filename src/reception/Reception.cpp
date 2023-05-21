@@ -11,7 +11,7 @@
 #include "Kitchen.hpp"
 #include "Reception.hpp"
 
-plazza::Reception::Reception(const Configuration &config): _config(config), _nextId(1) {
+plazza::Reception::Reception(const Configuration &config): _config(config), _nextOrderId(1), _nextKitchenId(1) {
 
 }
 
@@ -27,6 +27,8 @@ void plazza::Reception::run() {
             this->executeOrder(order);
         } catch (plazza::InputException &e) {
             exit = true;
+        } catch (plazza::CommandException &e) {
+            std::cerr << e.what() << std::endl;
         }
     }
     for (auto &kitchen : this->_kitchens) {
@@ -35,8 +37,8 @@ void plazza::Reception::run() {
 }
 
 plazza::PizzaOrder &plazza::Reception::registerOrder(const std::vector<PizzaCommand> &command) {
-    PizzaOrder &order = this->_orders.emplace_back(command, this->_nextId);
-    this->_nextId++;
+    PizzaOrder &order = this->_orders.emplace_back(command, this->_nextOrderId);
+    this->_nextOrderId++;
     return order;
 }
 
@@ -52,9 +54,7 @@ void plazza::Reception::executeOrder(const PizzaOrder &order) {
             taken = this->waitForKitchenResponse(kitchen);
         }
         if (!taken) {
-            this->createKitchen();
-            this->sendMessage(pizza, this->_kitchens.back());
-            this->waitForKitchenResponse(this->_kitchens.back());
+            this->createKitchen(pizza);
         }
     }
 }
@@ -98,26 +98,27 @@ bool plazza::Reception::waitForKitchenResponse(pid_t pid) {
     }
 }
 
-void plazza::Reception::createKitchen() {
+void plazza::Reception::createKitchen(const Pizza &pizza) {
     pid_t pid = fork();
 
     if (pid == -1) {
         throw CommunicationException("Error while creating kitchen: fork() failed");
     }
     if (pid == 0) {
-        new Kitchen(this->_config);
+        Kitchen(this->_config, pizza, this->_nextKitchenId);
     } else {
         this->_logger.log("New kitchen opened with pid " + std::to_string(pid));
         this->_kitchens.push_back(pid);
+        this->_nextKitchenId++;
     }
 }
 
 void plazza::Reception::logOrderReceived(size_t id) {
-    std::cout << "Order #" << id << " started!" << std::endl;
+    std::cout << "Reception: Order #" << id << " started!" << std::endl;
     this->_logger.log("Order #" + std::to_string(id) + " started!");
 }
 
 void plazza::Reception::logOrderReady(size_t id) {
-    std::cout << "Order #" << id << " is ready!" << std::endl;
+    std::cout << "Reception: Order #" << id << " is ready!" << std::endl;
     this->_logger.log("Order #" + std::to_string(id) + " is ready!");
 }
