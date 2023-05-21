@@ -30,6 +30,7 @@ namespace plazza {
             void log(const std::string &message) const;
 
             size_t _id;
+            size_t _maxQueue;
             plazza::Communication _ipc;
             std::vector<int> _ingredients;
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;

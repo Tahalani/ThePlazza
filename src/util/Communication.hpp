@@ -50,9 +50,21 @@ namespace plazza {
             }
 
             template<typename T>
+            void sendMessageRaw(T data, long target, size_t size = sizeof(T)) {
+                Message<T> message = {
+                        target,
+                        data,
+                };
+                if (msgsnd(this->_queue_id, &message, size, 0) == -1) {
+                    throw CommunicationException("msgsnd failed");
+                }
+            }
+
+            template<typename T>
             T receiveMessage(size_t size = sizeof(T)) {
                 Message<T> message;
                 if (msgrcv(this->_queue_id, &message, size, getpid(), 0) == -1) {
+                    perror("ca fail");
                     throw CommunicationException("msgrcv failed");
                 }
                 return message.data;

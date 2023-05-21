@@ -17,7 +17,6 @@ plazza::Reception::Reception(const Configuration &config): _config(config), _nex
 
 void plazza::Reception::run() {
     bool exit = false;
-    MessageType exitType = MessageType::EXIT;
 
     while (!exit) {
         try {
@@ -32,7 +31,7 @@ void plazza::Reception::run() {
         }
     }
     for (auto &kitchen : this->_kitchens) {
-        this->_ipc.sendMessage<MessageType>(exitType, kitchen);
+        this->_ipc.sendMessageRaw(MessageType::EXIT, kitchen);
     }
 }
 
@@ -77,6 +76,14 @@ void plazza::Reception::messageHandler(plazza::MessageType type) {
 
         case plazza::MessageType::PIZZA:
             pizza = this->_ipc.receiveMessage<Pizza>();
+            for (auto &order : this->_orders) {
+                if (order.pizzaReceived(pizza)) {
+                    if (order.isOrderReady()) {
+                        this->logOrderReady(order.getId());
+                    }
+                    break;
+                }
+            }
             break;
 
         default:

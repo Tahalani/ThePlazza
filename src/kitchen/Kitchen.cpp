@@ -51,18 +51,29 @@ plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &
     }
     this->_refill = std::thread(&Kitchen::refillRoutine, this, config.getRefillTime());
     this->_pizzaQueue.push(firstPizza);
-
     this->_cookCondVar.notify_one();
 
     while (1) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        auto type = this->_ipc.receiveMessage<plazza::MessageType>();
+
+        if (type == MessageType::PIZZA) {
+            auto pizza = this->_ipc.receiveMessage<plazza::Pizza>();
+            this->_pizzaQueue.push(pizza);
+            this->_cookCondVar.notify_one();
+            this->_ipc.sendMessageRaw(plazza::MessageType::PIZZA_RESPONSE, this->_parent_pid);
+            this->_ipc.sendMessageRaw<bool>(true, this->_parent_pid);
+        } else if (type == MessageType::EXIT) {
+            while (!this->_pizzaQueue.empty()) {
+                this->_pizzaQueue.pop();
+            }
+            this->_cookCondVar.notify_all();
+        }
     }
 }
 
 void plazza::Kitchen::kitchenRoutine(float multiplier)
 {
     float millis = 0;
-    plazza::MessageType pizzaType = MessageType::PIZZA;
     std::unique_lock<std::mutex> lock(this->_kitchenMutex);
 
     while (true) {
@@ -73,10 +84,12 @@ void plazza::Kitchen::kitchenRoutine(float multiplier)
         }
         Pizza pizza = this->_pizzaQueue.front();
         this->_pizzaQueue.pop();
-        lock.unlock();
         millis = (float) this->_ingredients_per_pizza[pizza.type].second * 1000 * multiplier;
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(millis)));
-        this->_ipc.sendMessage(pizzaType, this->_parent_pid);
+        auto result = this->_cookCondVar.wait_for(lock, std::chrono::milliseconds((int) millis));
+        if (result == std::cv_status::no_timeout) {
+            return;
+        }
+        this->_ipc.sendMessageRaw(MessageType::PIZZA, this->_parent_pid);
         this->_ipc.sendMessage(pizza, this->_parent_pid);
     }
 }
