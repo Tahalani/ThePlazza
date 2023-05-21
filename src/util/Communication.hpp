@@ -9,10 +9,11 @@
 #define COMMUNICATION_HPP_
 
 #include <iostream>
-
 #include <csignal>
 #include <exception>
 #include <sys/msg.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <string>
 
 namespace plazza {
