@@ -26,6 +26,5 @@ plazza::Communication::Communication() {
 }
 
 plazza::Communication::~Communication() {
-    std::cout << "rmid" << std::endl;
     msgctl(this->_queue_id, IPC_RMID, nullptr);
 }

@@ -28,6 +28,8 @@ void plazza::Reception::run() {
             exit = true;
         } catch (plazza::CommandException &e) {
             std::cerr << e.what() << std::endl;
+        } catch (plazza::CommunicationException &e) {
+            std::cerr << e.what() << std::endl;
         }
     }
     for (auto &kitchen : this->_kitchens) {

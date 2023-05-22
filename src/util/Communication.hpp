@@ -65,7 +65,6 @@ namespace plazza {
             T receiveMessage(size_t size = sizeof(T)) {
                 Message<T> message;
                 if (msgrcv(this->_queue_id, &message, size, getpid(), 0) == -1) {
-                    perror("ca fail");
                     throw CommunicationException("msgrcv failed");
                 }
                 return message.data;
