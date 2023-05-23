@@ -7,9 +7,10 @@
 
 #include <thread>
 #include <mutex>
+#include "Communication.hpp"
 #include "Kitchen.hpp"
 
-plazza::Kitchen::Kitchen(Configuration &conf)
+plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &ipc, const Pizza &firstPizza) : _id(id), _ipc(ipc), _parent_pid(getppid())
 {
     std::unordered_map<Ingredients, int> ReginaIngr = {
             {Ingredients::Dough, 1},
@@ -39,43 +40,77 @@ plazza::Kitchen::Kitchen(Configuration &conf)
 
     this->_ingredients = {5, 5, 5, 5, 5, 5, 5, 5, 5};
     this->_ingredients_per_pizza = {
-            {PizzaType::Regina, {ReginaIngr, 2 * 1000}},
-            {PizzaType::Margarita, {MargaritaIngr, 1 * 1000}},
-            {PizzaType::Americana, {AmericanaIngr, 2 * 1000}},
-            {PizzaType::Fantasia, {FantasiaIngr, 4 * 1000}},
+            {PizzaType::Regina, {ReginaIngr, 2}},
+            {PizzaType::Margarita, {MargaritaIngr, 1}},
+            {PizzaType::Americana, {AmericanaIngr, 2}},
+            {PizzaType::Fantasia, {FantasiaIngr, 4}},
     };
 
-    for (int i = 0; i < conf.getCooksPerKitchen(); i++) {
-        _threads.emplace_back(&Kitchen::kitchenRoutine, this, "Kitchen");
+    for (int i = 0; i <= config.getCooksPerKitchen(); i++) {
+        this->_cooks.emplace_back(&Kitchen::kitchenRoutine, this, config.getTimeMultiplier());
     }
-    for (auto &thread : _threads) {
-        thread.join();
-    }
-}
+    this->_refill = std::move(std::thread(&Kitchen::refillRoutine, this, config.getRefillTime()));
+    this->_pizzaQueue.push(firstPizza);
+    this->_cookCondVar.notify_one();
 
-void plazza::Kitchen::kitchenRoutine(std::string message)
-{
-    std::cout << message << std::endl;
-}
+    /*while (1) {
+        auto type = this->_ipc.receiveMessage<plazza::MessageType>();
 
-int plazza::Kitchen::checkQueue(std::vector<PizzaTaken> _pizzaTaken, int cooksPerKitchen)
-{
-    int pizza_possibles = 0;
-    bool curent_pizza = false;
-
-    for (auto &pizza : _pizzaTaken) {
-        if (_pizzaQueue.size() < cooksPerKitchen) {
-            if (curent_pizza == false) {
-                _currentPizza = pizza;
-                curent_pizza = true;
+        if (type == MessageType::PIZZA) {
+            auto pizza = this->_ipc.receiveMessage<plazza::Pizza>();
+            this->_pizzaQueue.push(pizza);
+            this->_cookCondVar.notify_one();
+            this->_ipc.sendMessageRaw(plazza::MessageType::PIZZA_RESPONSE, this->_parent_pid);
+            this->_ipc.sendMessageRaw<bool>(true, this->_parent_pid);
+        } else if (type == MessageType::EXIT) {
+            while (!this->_pizzaQueue.empty()) {
+                this->_pizzaQueue.pop();
             }
-            _pizzaQueue.push(pizza);
-            pizza_possibles++;
+            this->_cookCondVar.notify_all();
+        }
+    }*/
+}
+
+plazza::Kitchen::~Kitchen()
+{
+    this->_refill.join();
+    for (auto &cook : this->_cooks) {
+        cook.join();
+    }
+}
+
+void plazza::Kitchen::kitchenRoutine(float multiplier)
+{
+    float millis = 0;
+    std::unique_lock<std::mutex> lock(this->_kitchenMutex);
+
+    while (true) {
+        this->_cookCondVar.wait(lock);
+        if (this->_pizzaQueue.empty()) {
+            lock.unlock();
+            return;
+        }
+        Pizza pizza = this->_pizzaQueue.front();
+        this->_pizzaQueue.pop();
+        millis = (float) this->_ingredients_per_pizza[pizza.type].second * 1000 * multiplier;
+        auto result = this->_cookCondVar.wait_for(lock, std::chrono::milliseconds((int) millis));
+        if (result == std::cv_status::no_timeout) {
+            return;
+        }
+        /*this->_ipc.sendMessageRaw(MessageType::PIZZA, this->_parent_pid);
+        this->_ipc.sendMessage(pizza, this->_parent_pid);*/
+    }
+}
+
+void plazza::Kitchen::refillRoutine(int refillTime)
+{
+    while (1) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(refillTime));
+        for (size_t i = 0; i < _ingredients.size(); i += 1) {
+            if (_ingredients[i] < 5) {
+                _ingredients[i] += 1;
+                std::cout << "Refill ingredient " << std::endl;
+            }
         }
     }
-    return pizza_possibles;
-}
-
-void *plazza::Kitchen::algorithmKitchen([[maybe_unused]] void *arg) {
-    return nullptr;
 }

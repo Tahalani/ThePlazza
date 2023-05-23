@@ -10,27 +10,38 @@
 
 #include <iostream>
 #include <map>
-#include <thread>
 #include <unordered_map>
 #include <vector>
+#include <condition_variable>
+#include <thread>
 #include <queue>
+#include "Communication.hpp"
 #include "Configuration.hpp"
-#include "../../include/PizzaData.hpp"
+#include "PizzaData.hpp"
 
 namespace plazza {
     class Kitchen {
         public:
-            Kitchen(plazza::Configuration &conf);
-            ~Kitchen() {};
-            void kitchenRoutine(std::string message);
-            int checkQueue(std::vector<PizzaTaken> _pizzaTaken, int cooksPerKitchen);
-            void *algorithmKitchen(void *arg);
+            Kitchen(size_t id, plazza::Configuration &config, const Communication &ipc, const Pizza &firstPizza);
+            ~Kitchen();
+            void kitchenRoutine(float timeMultiplier);
+            void refillRoutine(int refillTime);
+
         private:
+            void log(const std::string &message) const;
+
+            size_t _id;
+            size_t _maxQueue;
+            plazza::Communication _ipc;
             std::vector<int> _ingredients;
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
-            std::vector<std::thread> _threads;
-            std::queue<PizzaTaken> _pizzaQueue;
-            PizzaTaken _currentPizza;
+            std::queue<plazza::Pizza> _pizzaQueue;
+            std::mutex _kitchenMutex;
+            std::unique_lock<std::mutex> _kitchenLock;
+            std::condition_variable _cookCondVar;
+            std::vector<std::thread> _cooks;
+            std::thread _refill;
+            pid_t _parent_pid;
     };
 }
 

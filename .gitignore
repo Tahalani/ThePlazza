@@ -5,3 +5,6 @@ plazza
 # development
 .vscode/
 .idea/
+
+# logs
+plazza.log

@@ -6,8 +6,12 @@
 ##
 
 SRC			=	src/kitchen/Kitchen.cpp \
+				src/reception/PizzaOrder.cpp \
 				src/reception/Reception.cpp \
+				src/reception/ReceptionIPC.cpp \
 				src/reception/Shell.cpp \
+				src/util/Communication.cpp \
+				src/util/Logger.cpp \
 				src/Configuration.cpp \
 				src/Main.cpp
 
@@ -15,13 +19,15 @@ OBJ			=	$(SRC:.cpp=.o)
 
 NAME		=	plazza
 
-CPPFLAGS	=	-iquote include/ -iquote src/ -iquote src/reception
-CXXFLAGS	=	-Wall -Wextra -pthread -std=c++17
+CPPFLAGS	=	-iquote include/ -iquote src/ \
+				-iquote src/kitchen -iquote src/reception -iquote src/util
+CXXFLAGS	=	-Wall -Wextra -std=c++17
+LDLIBS		=	-lpthread
 
 all:	$(NAME)
 
 $(NAME): $(OBJ)
-	g++ $(CXXFLAGS) -o $(NAME) $(OBJ)
+	g++ $(CXXFLAGS) -o $(NAME) $(OBJ) $(LDLIBS)
 
 clean:
 	rm -f *.gcda *.gcno
