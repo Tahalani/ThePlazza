@@ -6,7 +6,7 @@
 */
 
 #ifndef PIZZADATA_HPP_
-    #define PIZZADATA_HPP_
+#define PIZZADATA_HPP_
 
 namespace plazza {
     enum class MessageType {

@@ -15,7 +15,14 @@ plazza::ReceptionIPC::ReceptionIPC() : _thread(std::thread(&ReceptionIPC::ipcRou
 
 plazza::ReceptionIPC::~ReceptionIPC() {
     this->sendMessage(MessageType::EXIT, getpid());
-    this->_thread.join();
+    if (this->_thread.joinable()) {
+        this->_thread.join();
+    }
+}
+
+void plazza::ReceptionIPC::sendPizza(const Pizza &pizza, long target) {
+    this->sendMessage(MessageType::PIZZA, target);
+    this->sendMessage(pizza, target);
 }
 
 void plazza::ReceptionIPC::ipcRoutine(pid_t parentPid) {

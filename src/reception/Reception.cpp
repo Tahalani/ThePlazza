@@ -23,7 +23,7 @@ void plazza::Reception::run() {
             std::vector<PizzaCommand> command = this->_shell.getNextOrder();
             PizzaOrder &order = this->registerOrder(command);
             this->logOrderReceived(order.getId());
-            //this->executeOrder(order);
+            this->executeOrder(order);
         } catch (plazza::InputException &e) {
             exit = true;
         } catch (plazza::CommandException &e) {
@@ -44,19 +44,8 @@ plazza::PizzaOrder &plazza::Reception::registerOrder(const std::vector<PizzaComm
 }
 
 void plazza::Reception::executeOrder(const PizzaOrder &order) {
-    bool taken = false;
-
     for (auto &pizza : order.getPizzasToDeliver()) {
-        taken = false;
-        for (auto &kitchen : this->_kitchens) {
-            if (taken)
-                break;
-            //this->_ipc.sendMessage(pizza, kitchen);
-            taken = this->waitForKitchenResponse(kitchen);
-        }
-        if (!taken) {
-            this->createKitchen(pizza);
-        }
+        this->_ipc.sendPizza(pizza, getpid());
     }
 }
 

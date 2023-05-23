@@ -22,25 +22,20 @@
 namespace plazza {
     class Kitchen {
         public:
-            Kitchen(size_t id, plazza::Configuration &config, const Communication &ipc, const Pizza &firstPizza);
-            ~Kitchen();
-            void kitchenRoutine(float timeMultiplier);
-            void refillRoutine(int refillTime);
+            Kitchen(size_t id, plazza::Configuration &config, const Communication &ipc);
+            void openKitchen(const Pizza &firstPizza);
 
         private:
-            void log(const std::string &message) const;
+            void run(const Pizza &firstPizza);
 
             size_t _id;
-            size_t _maxQueue;
+            plazza::Configuration _config;
             plazza::Communication _ipc;
             std::vector<int> _ingredients;
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
             std::queue<plazza::Pizza> _pizzaQueue;
-            std::mutex _kitchenMutex;
             std::unique_lock<std::mutex> _kitchenLock;
             std::condition_variable _cookCondVar;
-            std::vector<std::thread> _cooks;
-            std::thread _refill;
             pid_t _parent_pid;
     };
 }

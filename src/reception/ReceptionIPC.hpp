@@ -19,6 +19,8 @@ namespace plazza {
             ReceptionIPC();
             ~ReceptionIPC();
 
+            void sendPizza(const Pizza &pizza, long target);
+
         private:
             void ipcRoutine(pid_t parentPid);
             bool exitHandler(pid_t parentPid, pid_t senderPid);

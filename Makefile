@@ -5,7 +5,9 @@
 ## Makefile
 ##
 
-SRC			=	src/kitchen/Kitchen.cpp \
+SRC			=	src/kitchen/Cook.cpp \
+				src/kitchen/Kitchen.cpp \
+				src/kitchen/ThreadPool.cpp \
 				src/reception/PizzaOrder.cpp \
 				src/reception/Reception.cpp \
 				src/reception/ReceptionIPC.cpp \

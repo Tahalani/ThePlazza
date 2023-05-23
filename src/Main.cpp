@@ -9,8 +9,7 @@
 #include "Configuration.hpp"
 #include "Reception.hpp"
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
     try {
         plazza::Configuration config(argc, argv);
         plazza::Reception reception(config);
