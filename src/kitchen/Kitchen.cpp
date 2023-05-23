@@ -49,7 +49,7 @@ plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &
     for (int i = 0; i <= config.getCooksPerKitchen(); i++) {
         this->_cooks.emplace_back(&Kitchen::kitchenRoutine, this, config.getTimeMultiplier());
     }
-    this->_refill = std::thread(&Kitchen::refillRoutine, this, config.getRefillTime());
+    this->_refill = std::move(std::thread(&Kitchen::refillRoutine, this, config.getRefillTime()));
     this->_pizzaQueue.push(firstPizza);
     this->_cookCondVar.notify_one();
 
@@ -68,6 +68,14 @@ plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &
             }
             this->_cookCondVar.notify_all();
         }
+    }
+}
+
+plazza::Kitchen::~Kitchen()
+{
+    this->_refill.join();
+    for (auto &cook : this->_cooks) {
+        cook.join();
     }
 }
 

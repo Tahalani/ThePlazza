@@ -23,6 +23,7 @@ namespace plazza {
     class Kitchen {
         public:
             Kitchen(size_t id, plazza::Configuration &config, const Communication &ipc, const Pizza &firstPizza);
+            ~Kitchen();
             void kitchenRoutine(float timeMultiplier);
             void refillRoutine(int refillTime);
 

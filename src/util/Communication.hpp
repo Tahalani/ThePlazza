@@ -46,6 +46,8 @@ namespace plazza {
                         data,
                 };
                 if (msgsnd(this->_queue_id, &message, size, 0) == -1) {
+                    printf("msgsnd failed1\n");
+                    perror("msgsnd");
                     throw CommunicationException("msgsnd failed");
                 }
             }
@@ -57,6 +59,8 @@ namespace plazza {
                         data,
                 };
                 if (msgsnd(this->_queue_id, &message, size, 0) == -1) {
+                    printf("msgsnd failed2\n");
+                    perror("msgsnd");
                     throw CommunicationException("msgsnd failed");
                 }
             }
@@ -64,7 +68,8 @@ namespace plazza {
             template<typename T>
             T receiveMessage(size_t size = sizeof(T)) {
                 Message<T> message;
-                if (msgrcv(this->_queue_id, &message, size, getpid(), 0) == -1) {
+                if (msgrcv(this->_queue_id, &message, size + sizeof(long), getpid(), 0) == -1) {
+                    perror("msgrcv");
                     throw CommunicationException("msgrcv failed");
                 }
                 return message.data;
