@@ -11,7 +11,7 @@ Cette documentation vous servira à comprendre le fonctionnement de Plazza.
     - [Kitchen](#Kitchen)
     - [Variables](#variables)
 - [Architecture et structure du code](#Architecture-et-structure-du-code)
-
+    - [Pizza Generique](#Pizza-Generique)
 
 # Arguments
 
@@ -89,5 +89,3 @@ namespace plazza {
 ## Pizza Generique
 
 Pour la pizza générique, nous avons utilisé un enum class pour les types de pizza, les tailles de pizza et les ingrédients. Nous avons aussi utilisé une structure pour les commandes de pizza et une autre pour les pizzas prises. Ainsi, grace a un fichier de conf, nous pouvons facilement ajouter des nouvelles pizzas.
-
-```
