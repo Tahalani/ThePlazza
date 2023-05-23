@@ -8,10 +8,10 @@
 #ifndef RECEPTION_HPP_
 #define RECEPTION_HPP_
 
-#include "Configuration.hpp"
-#include "util/Communication.hpp"
-#include "util/Logger.hpp"
+#include "Communication.hpp"
+#include "Logger.hpp"
 #include "PizzaOrder.hpp"
+#include "ReceptionIPC.hpp"
 #include "Shell.hpp"
 
 namespace plazza {
@@ -32,7 +32,7 @@ namespace plazza {
 
             Shell _shell;
             Configuration _config;
-            Communication _ipc;
+            ReceptionIPC _ipc;
             Logger _logger;
             std::vector<PizzaOrder> _orders;
             std::vector<pid_t> _kitchens;

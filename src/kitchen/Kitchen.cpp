@@ -53,7 +53,7 @@ plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &
     this->_pizzaQueue.push(firstPizza);
     this->_cookCondVar.notify_one();
 
-    while (1) {
+    /*while (1) {
         auto type = this->_ipc.receiveMessage<plazza::MessageType>();
 
         if (type == MessageType::PIZZA) {
@@ -68,7 +68,7 @@ plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &
             }
             this->_cookCondVar.notify_all();
         }
-    }
+    }*/
 }
 
 void plazza::Kitchen::kitchenRoutine(float multiplier)
@@ -89,8 +89,8 @@ void plazza::Kitchen::kitchenRoutine(float multiplier)
         if (result == std::cv_status::no_timeout) {
             return;
         }
-        this->_ipc.sendMessageRaw(MessageType::PIZZA, this->_parent_pid);
-        this->_ipc.sendMessage(pizza, this->_parent_pid);
+        /*this->_ipc.sendMessageRaw(MessageType::PIZZA, this->_parent_pid);
+        this->_ipc.sendMessage(pizza, this->_parent_pid);*/
     }
 }
 
