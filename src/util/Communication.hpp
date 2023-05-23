@@ -33,46 +33,35 @@ namespace plazza {
             Communication();
             ~Communication();
 
+        protected:
             template<typename T>
             struct Message {
                 long type;
+                pid_t sender;
                 T data;
             };
 
             template<typename T>
-            void sendMessage(T &data, long target, size_t size = sizeof(T)) {
+            void sendMessage(const T &data, long target, size_t size = sizeof(T)) {
                 Message<T> message = {
                         target,
+                        getpid(),
                         data,
                 };
-                if (msgsnd(this->_queue_id, &message, size, 0) == -1) {
-                    printf("msgsnd failed1\n");
-                    perror("msgsnd");
+                if (msgsnd(this->_queue_id, &message, size + sizeof(long) + sizeof(pid_t), 0) == -1) {
+                    perror("msgsnd"); // TODO: remove debug
                     throw CommunicationException("msgsnd failed");
                 }
             }
 
             template<typename T>
-            void sendMessageRaw(T data, long target, size_t size = sizeof(T)) {
-                Message<T> message = {
-                        target,
-                        data,
-                };
-                if (msgsnd(this->_queue_id, &message, size, 0) == -1) {
-                    printf("msgsnd failed2\n");
-                    perror("msgsnd");
-                    throw CommunicationException("msgsnd failed");
-                }
-            }
-
-            template<typename T>
-            T receiveMessage(size_t size = sizeof(T)) {
+            Message<T> receiveMessage(size_t size = sizeof(T)) {
                 Message<T> message;
-                if (msgrcv(this->_queue_id, &message, size + sizeof(long), getpid(), 0) == -1) {
-                    perror("msgrcv");
+                if (msgrcv(this->_queue_id, &message, size + sizeof(long) + sizeof(pid_t), getpid(), 0) == -1) {
+                    perror("msgrcv"); // TODO: remove debug
                     throw CommunicationException("msgrcv failed");
                 }
-                return message.data;
+                return message;
             }
 
         private:

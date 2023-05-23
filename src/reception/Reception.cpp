@@ -23,7 +23,7 @@ void plazza::Reception::run() {
             std::vector<PizzaCommand> command = this->_shell.getNextOrder();
             PizzaOrder &order = this->registerOrder(command);
             this->logOrderReceived(order.getId());
-            this->executeOrder(order);
+            //this->executeOrder(order);
         } catch (plazza::InputException &e) {
             exit = true;
         } catch (plazza::CommandException &e) {
@@ -32,9 +32,9 @@ void plazza::Reception::run() {
             std::cerr << e.what() << std::endl;
         }
     }
-    for (auto &kitchen : this->_kitchens) {
+    /*for (auto &kitchen : this->_kitchens) {
         this->_ipc.sendMessageRaw(MessageType::EXIT, kitchen);
-    }
+    }*/
 }
 
 plazza::PizzaOrder &plazza::Reception::registerOrder(const std::vector<PizzaCommand> &command) {
@@ -51,7 +51,7 @@ void plazza::Reception::executeOrder(const PizzaOrder &order) {
         for (auto &kitchen : this->_kitchens) {
             if (taken)
                 break;
-            this->_ipc.sendMessage(pizza, kitchen);
+            //this->_ipc.sendMessage(pizza, kitchen);
             taken = this->waitForKitchenResponse(kitchen);
         }
         if (!taken) {
@@ -66,7 +66,7 @@ void plazza::Reception::messageHandler(plazza::MessageType type) {
 
     switch (type) {
         case plazza::MessageType::EXIT:
-            pid = this->_ipc.receiveMessage<pid_t>();
+            //pid = this->_ipc.receiveMessage<pid_t>();
             for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); ++it) {
                 if (*it == pid) {
                     this->_kitchens.erase(it);
@@ -77,7 +77,7 @@ void plazza::Reception::messageHandler(plazza::MessageType type) {
             break;
 
         case plazza::MessageType::PIZZA:
-            pizza = this->_ipc.receiveMessage<Pizza>();
+            //pizza = this->_ipc.receiveMessage<Pizza>();
             for (auto &order : this->_orders) {
                 if (order.pizzaReceived(pizza)) {
                     if (order.isOrderReady()) {
@@ -95,14 +95,15 @@ void plazza::Reception::messageHandler(plazza::MessageType type) {
 
 
 bool plazza::Reception::waitForKitchenResponse(pid_t pid) {
-    auto message = this->_ipc.receiveMessage<MessageType>();
+    /*auto message = this->_ipc.receiveMessage<MessageType>();
 
     if (message == plazza::MessageType::PIZZA_RESPONSE) {
         return this->_ipc.receiveMessage<bool>();
     } else {
         this->messageHandler(message);
         return this->waitForKitchenResponse(pid);
-    }
+    }*/
+    return true;
 }
 
 void plazza::Reception::createKitchen(const Pizza &pizza) {
@@ -112,7 +113,7 @@ void plazza::Reception::createKitchen(const Pizza &pizza) {
         throw CommunicationException("Error while creating kitchen: fork() failed");
     }
     if (pid == 0) {
-        Kitchen(this->_nextKitchenId, this->_config, this->_ipc, pizza);
+        //Kitchen(this->_nextKitchenId, this->_config, this->_ipc, pizza);
     } else {
         this->_logger.log("New kitchen opened with pid " + std::to_string(pid));
         this->_kitchens.push_back(pid);

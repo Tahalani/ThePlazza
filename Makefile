@@ -8,6 +8,7 @@
 SRC			=	src/kitchen/Kitchen.cpp \
 				src/reception/PizzaOrder.cpp \
 				src/reception/Reception.cpp \
+				src/reception/ReceptionIPC.cpp \
 				src/reception/Shell.cpp \
 				src/util/Communication.cpp \
 				src/util/Logger.cpp \
