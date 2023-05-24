@@ -23,6 +23,9 @@ namespace plazza {
     class Kitchen {
         public:
             Kitchen(size_t id, plazza::Configuration &config, const Communication &ipc);
+
+            pid_t getKitchenPid() const;
+
             void openKitchen(const Pizza &firstPizza);
 
         private:
@@ -33,10 +36,8 @@ namespace plazza {
             plazza::Communication _ipc;
             std::vector<int> _ingredients;
             std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
-            std::queue<plazza::Pizza> _pizzaQueue;
-            std::unique_lock<std::mutex> _kitchenLock;
-            std::condition_variable _cookCondVar;
             pid_t _parent_pid;
+            pid_t _kitchen_pid;
     };
 }
 

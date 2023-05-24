@@ -15,13 +15,18 @@ plazza::Reception::Reception(const Configuration &config): _config(config), _nex
 
 }
 
+
 void plazza::Reception::run() {
     bool exit = false;
 
     while (!exit) {
         try {
-            std::vector<PizzaCommand> command = this->_shell.getNextOrder();
-            PizzaOrder &order = this->registerOrder(command);
+            std::optional<std::vector<PizzaCommand>> command = this->_shell.getNextOrder();
+            if (!command.has_value()) {
+                // TODO: status
+                continue;
+            }
+            PizzaOrder &order = this->registerOrder(command.value());
             this->logOrderReceived(order.getId());
             this->executeOrder(order);
         } catch (plazza::InputException &e) {
@@ -32,9 +37,6 @@ void plazza::Reception::run() {
             std::cerr << e.what() << std::endl;
         }
     }
-    /*for (auto &kitchen : this->_kitchens) {
-        this->_ipc.sendMessageRaw(MessageType::EXIT, kitchen);
-    }*/
 }
 
 plazza::PizzaOrder &plazza::Reception::registerOrder(const std::vector<PizzaCommand> &command) {
@@ -50,21 +52,9 @@ void plazza::Reception::executeOrder(const PizzaOrder &order) {
 }
 
 void plazza::Reception::messageHandler(plazza::MessageType type) {
-    pid_t pid = 0;
     Pizza pizza{};
 
     switch (type) {
-        case plazza::MessageType::EXIT:
-            //pid = this->_ipc.receiveMessage<pid_t>();
-            for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); ++it) {
-                if (*it == pid) {
-                    this->_kitchens.erase(it);
-                    break;
-                }
-            }
-            this->_logger.log("Kitchen with pid " + std::to_string(pid) + " closed");
-            break;
-
         case plazza::MessageType::PIZZA:
             //pizza = this->_ipc.receiveMessage<Pizza>();
             for (auto &order : this->_orders) {
@@ -105,7 +95,6 @@ void plazza::Reception::createKitchen(const Pizza &pizza) {
         //Kitchen(this->_nextKitchenId, this->_config, this->_ipc, pizza);
     } else {
         this->_logger.log("New kitchen opened with pid " + std::to_string(pid));
-        this->_kitchens.push_back(pid);
         this->_nextKitchenId++;
     }
 }

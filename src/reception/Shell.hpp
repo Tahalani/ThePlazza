@@ -8,6 +8,7 @@
 #ifndef SHELL_HPP_
 #define SHELL_HPP_
 
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -32,7 +33,7 @@ namespace plazza {
         public:
             Shell();
 
-            std::vector<PizzaCommand> getNextOrder();
+            std::optional<std::vector<PizzaCommand>> getNextOrder();
 
         private:
             PizzaCommand parseOrder(std::string &order);

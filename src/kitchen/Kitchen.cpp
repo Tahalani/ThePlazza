@@ -9,7 +9,7 @@
 #include "Kitchen.hpp"
 #include "ThreadPool.hpp"
 
-plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &ipc) : _id(id), _config(config), _ipc(ipc), _parent_pid(getpid()) {
+plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &ipc) : _id(id), _config(config), _ipc(ipc), _parent_pid(getpid()), _kitchen_pid(0) {
     std::unordered_map<Ingredients, int> ReginaIngr = {
             {Ingredients::Dough,     1},
             {Ingredients::Tomato,    1},
@@ -45,6 +45,10 @@ plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &
     };
 }
 
+pid_t plazza::Kitchen::getKitchenPid() const {
+    return this->_kitchen_pid;
+}
+
 void plazza::Kitchen::openKitchen(const Pizza &firstPizza) {
     pid_t pid = fork();
 
@@ -53,6 +57,8 @@ void plazza::Kitchen::openKitchen(const Pizza &firstPizza) {
     } else if (pid == 0) {
         this->run(firstPizza);
         exit(0);
+    } else {
+        this->_kitchen_pid = pid;
     }
 }
 

@@ -24,10 +24,11 @@ namespace plazza {
         private:
             void ipcRoutine(pid_t parentPid);
             bool exitHandler(pid_t parentPid, pid_t senderPid);
-            void pizzaHandler();
+            void pizzaHandler(pid_t parentPid, pid_t senderPid);
 
             std::thread _thread;
-            std::vector<plazza::Kitchen> _kitchens;
+            std::vector<Kitchen> _kitchens;
+            std::queue<Pizza> _orderQueue;
     };
 }
 

@@ -30,7 +30,7 @@ plazza::Shell::Shell(): _pizzaTypes(), _pizzaSizes() {
     this->_pizzaSizes["XXL"] = plazza::PizzaSize::XXL;
 }
 
-std::vector<plazza::PizzaCommand> plazza::Shell::getNextOrder() {
+std::optional<std::vector<plazza::PizzaCommand>> plazza::Shell::getNextOrder() {
     size_t pos = 0;
     std::string buffer;
     std::string str;
@@ -40,6 +40,9 @@ std::vector<plazza::PizzaCommand> plazza::Shell::getNextOrder() {
 
     if (!res) {
         throw plazza::InputException();
+    }
+    if (buffer == "status") {
+        return std::nullopt;
     }
     do {
         pos = buffer.find(';');

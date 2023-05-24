@@ -36,10 +36,10 @@ void plazza::ReceptionIPC::ipcRoutine(pid_t parentPid) {
                 exit = this->exitHandler(parentPid, type.sender);
                 break;
             case MessageType::PIZZA:
-                this->pizzaHandler();
+                this->pizzaHandler(parentPid, type.sender);
                 break;
             case MessageType::PIZZA_RESPONSE:
-
+                // TODO Response handler
                 break;
         }
     }
@@ -50,11 +50,18 @@ bool plazza::ReceptionIPC::exitHandler(pid_t parentPid, pid_t senderPid) {
         return true;
     }
     for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); it++) {
-        
+        if (it->getKitchenPid() == senderPid) {
+            this->_kitchens.erase(it);
+            return false;
+        }
     }
     return false;
 }
 
-void plazza::ReceptionIPC::pizzaHandler() {
-
+void plazza::ReceptionIPC::pizzaHandler(pid_t parentPid, pid_t senderPid) {
+    if (senderPid == parentPid) {
+        Message<Pizza> pizza = this->receiveMessage<Pizza>();
+        this->_orderQueue.push(pizza.data);
+        return;
+    }
 }
