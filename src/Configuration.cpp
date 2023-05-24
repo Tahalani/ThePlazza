@@ -6,7 +6,9 @@
 */
 
 #include "Configuration.hpp"
+#include "PizzaRecipe.hpp"
 
+#include <filesystem>
 #include <utility>
 
 plazza::ConfigurationException::ConfigurationException(std::string message): _message(std::move(message)) {
@@ -48,4 +50,12 @@ int plazza::Configuration::getCooksPerKitchen() const {
 
 int plazza::Configuration::getRefillTime() const {
     return this->_refillTime;
+}
+
+void plazza::Configuration::setPizzaRecipes(const std::string &path)
+{
+    for (auto &entry : std::filesystem::directory_iterator(path)) {
+        std::string pathConf = entry.path().string();
+        _pizzaRecipes.emplace_back(PizzaRecipe(pathConf));
+    }
 }
