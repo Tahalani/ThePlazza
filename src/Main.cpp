@@ -5,7 +5,6 @@
 ** main
 */
 
-#include <iostream>
 #include "Configuration.hpp"
 #include "Reception.hpp"
 #include "PizzaRecipe.hpp"
@@ -13,8 +12,14 @@
 int main(int argc, char const *argv[])
 {
     try {
-        plazza::PizzaRecipe recipe("config/Regina.conf");
         plazza::Configuration config(argc, argv);
+        config.setPizzaRecipes(CONF_PATH);
+        std::vector<plazza::PizzaRecipe> recipes = config.getPizzaRecipes();
+
+        for (auto &recipe : recipes) {
+            std::cout << recipe.getName() << std::endl;
+        }
+
         plazza::Reception reception(config);
         reception.run();
     } catch (plazza::ConfigurationException &e) {
