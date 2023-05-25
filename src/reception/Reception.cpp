@@ -11,7 +11,7 @@
 #include "Kitchen.hpp"
 #include "Reception.hpp"
 
-plazza::Reception::Reception(const Configuration &config): _config(config), _nextOrderId(1), _nextKitchenId(1) {
+plazza::Reception::Reception(const Configuration &config): _config(config), _ipc(config), _nextOrderId(1) {
 
 }
 
@@ -95,7 +95,7 @@ void plazza::Reception::createKitchen(const Pizza &pizza) {
         //Kitchen(this->_nextKitchenId, this->_config, this->_ipc, pizza);
     } else {
         this->_logger.log("New kitchen opened with pid " + std::to_string(pid));
-        this->_nextKitchenId++;
+        //this->_nextKitchenId++;
     }
 }
 

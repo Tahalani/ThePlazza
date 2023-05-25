@@ -63,7 +63,7 @@ void plazza::Kitchen::openKitchen(const Pizza &firstPizza) {
 }
 
 void plazza::Kitchen::run(const Pizza &firstPizza) {
-    ThreadPool pool(this->_parent_pid, this->_config);
+    ThreadPool pool(this->_parent_pid, this->_config, this->_ipc);
 
     pool.run(firstPizza);
 }

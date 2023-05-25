@@ -36,7 +36,6 @@ namespace plazza {
             Logger _logger;
             std::vector<PizzaOrder> _orders;
             size_t _nextOrderId;
-            size_t _nextKitchenId;
     };
 }
 

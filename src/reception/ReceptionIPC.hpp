@@ -16,7 +16,7 @@
 namespace plazza {
     class ReceptionIPC : Communication {
         public:
-            ReceptionIPC();
+            explicit ReceptionIPC(const Configuration &config);
             ~ReceptionIPC();
 
             void sendPizza(const Pizza &pizza, long target);
@@ -25,10 +25,12 @@ namespace plazza {
             void ipcRoutine(pid_t parentPid);
             bool exitHandler(pid_t parentPid, pid_t senderPid);
             void pizzaHandler(pid_t parentPid, pid_t senderPid);
+            void createKitchen(const Pizza &firstPizza);
 
             std::thread _thread;
             std::vector<Kitchen> _kitchens;
-            std::queue<Pizza> _orderQueue;
+            Configuration _config;
+            size_t _nextKitchenId;
     };
 }
 

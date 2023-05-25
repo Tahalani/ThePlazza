@@ -11,8 +11,8 @@
 namespace plazza {
     enum class MessageType {
         EXIT,
+        STATUS,
         PIZZA,
-        PIZZA_RESPONSE,
     };
 
     enum class PizzaType {
