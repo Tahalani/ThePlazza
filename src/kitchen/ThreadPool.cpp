@@ -5,7 +5,6 @@
 ** ThreadPool.cpp
 */
 
-#include "Cook.hpp"
 #include "ThreadPool.hpp"
 
 plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &config, const plazza::Communication &ipc): _parentPid(parentPid), _config(config), _ipc(ipc), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {

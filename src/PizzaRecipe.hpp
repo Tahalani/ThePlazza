@@ -5,56 +5,51 @@
 ** pizzaRecipe>
 */
 
-#ifndef PIZZARECIPE__HPP_
-    #define PIZZARECIPE__HPP_
+#ifndef PIZZA_RECIPE_HPP_
+#define PIZZA_RECIPE_HPP_
 
-    #include <unordered_map>
-    #include <string>
-    #include <iostream>
-    #include <fstream>
-    #include <vector>
-    #include "../include/PizzaData.hpp"
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include "PizzaData.hpp"
 
-    namespace plazza {
-
-        static std::unordered_map<std::string, Ingredients> ingredients_array = {
-            {"Dough", Ingredients::Dough},
-            {"Tomato", Ingredients::Tomato},
-            {"Gruyere", Ingredients::Gruyere},
-            {"Ham", Ingredients::Ham},
-            {"Mushrooms", Ingredients::Mushrooms},
-            {"Steak", Ingredients::Steak},
-            {"Eggplant", Ingredients::Eggplant},
-            {"GoatCheese", Ingredients::GoatCheese},
-            {"ChiefLove", Ingredients::ChiefLove}
-        };
-
-        class RecipeException : std::exception {
-            public:
-                explicit RecipeException(std::string message);
-                ~RecipeException() override = default;
-
-                [[nodiscard]] const char *what() const noexcept override;
-
-            private:
-                std::string _message;
+namespace plazza {
+    static std::unordered_map<std::string, Ingredients> ingredients_array = {
+        {"Dough", Ingredients::Dough},
+        {"Tomato", Ingredients::Tomato},
+        {"Gruyere", Ingredients::Gruyere},
+        {"Ham", Ingredients::Ham},
+        {"Mushrooms", Ingredients::Mushrooms},
+        {"Steak", Ingredients::Steak},
+        {"Eggplant", Ingredients::Eggplant},
+        {"GoatCheese", Ingredients::GoatCheese},
+        {"ChiefLove", Ingredients::ChiefLove}
     };
 
-        class PizzaRecipe {
-            public:
-                PizzaRecipe(std::string filepath, std::vector<PizzaRecipe> const &_pizzaRecipes);
-                ~PizzaRecipe() = default;
-                std::string getName() const { return _name;};
-                int getTime() const { return _time;};
-                std::unordered_map<Ingredients, int> getIngredients() const { return _ingredients;};
+    class RecipeException : std::exception {
+        public:
+            explicit RecipeException(std::string message);
+            ~RecipeException() override = default;
 
-            private:
-                std::string _name;
-                size_t _time;
-                std::unordered_map<Ingredients, int> _ingredients;
-        };
-    }
+            [[nodiscard]] const char *what() const noexcept override;
 
+        private:
+            std::string _message;
+    };
 
+    class PizzaRecipe {
+        public:
+            PizzaRecipe(const std::string& filepath, std::vector<PizzaRecipe> const &_pizzaRecipes);
 
-#endif /* !PIZZARECIPE__HPP_ */
+            std::string getName() const { return _name;};
+            int getTime() const { return _time;};
+            std::unordered_map<Ingredients, int> getIngredients() const { return _ingredients;};
+
+        private:
+            std::string _name;
+            size_t _time;
+            std::unordered_map<Ingredients, int> _ingredients;
+    };
+}
+
+#endif

@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <vector>
 #include "PizzaData.hpp"
+#include "PizzaRecipe.hpp"
 
 namespace plazza {
     class InputException : std::exception {
@@ -31,14 +32,14 @@ namespace plazza {
 
     class Shell {
         public:
-            Shell();
+            Shell(const std::vector<PizzaRecipe> &recipes);
 
             std::optional<std::vector<PizzaCommand>> getNextOrder();
 
         private:
             PizzaCommand parseOrder(std::string &order);
 
-            std::unordered_map<std::string, PizzaType> _pizzaTypes;
+            std::vector<PizzaRecipe> _recipes;
             std::unordered_map<std::string, PizzaSize> _pizzaSizes;
     };
 }

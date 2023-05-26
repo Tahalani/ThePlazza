@@ -35,7 +35,6 @@ namespace plazza {
             plazza::Configuration _config;
             plazza::Communication _ipc;
             std::vector<int> _ingredients;
-            std::unordered_map<plazza::PizzaType, std::pair<std::unordered_map<plazza::Ingredients, int>, int>> _ingredients_per_pizza;
             pid_t _parent_pid;
             pid_t _kitchen_pid;
     };
