@@ -56,6 +56,6 @@ void plazza::Configuration::setPizzaRecipes(const std::string &path)
 {
     for (auto &entry : std::filesystem::directory_iterator(path)) {
         std::string pathConf = entry.path().string();
-        _pizzaRecipes.emplace_back(PizzaRecipe(pathConf));
+        _pizzaRecipes.emplace_back(PizzaRecipe(pathConf, std::move(_pizzaRecipes)));
     }
 }

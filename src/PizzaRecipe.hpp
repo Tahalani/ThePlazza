@@ -12,12 +12,13 @@
     #include <string>
     #include <iostream>
     #include <fstream>
+    #include <vector>
     #include "../include/PizzaData.hpp"
 
     namespace plazza {
 
         static std::unordered_map<std::string, Ingredients> ingredients_array = {
-            {"Doe", Ingredients::Dough},
+            {"Dough", Ingredients::Dough},
             {"Tomato", Ingredients::Tomato},
             {"Gruyere", Ingredients::Gruyere},
             {"Ham", Ingredients::Ham},
@@ -41,8 +42,8 @@
 
         class PizzaRecipe {
             public:
-                PizzaRecipe(std::string filepath);
-                ~PizzaRecipe();
+                PizzaRecipe(std::string filepath, std::vector<PizzaRecipe> const &_pizzaRecipes);
+                ~PizzaRecipe() = default;
                 std::string getName() const { return _name;};
                 int getTime() const { return _time;};
                 std::unordered_map<Ingredients, int> getIngredients() const { return _ingredients;};

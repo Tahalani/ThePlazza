@@ -18,6 +18,13 @@ int main(int argc, char const *argv[])
 
         for (auto &recipe : recipes) {
             std::cout << recipe.getName() << std::endl;
+            std::cout << recipe.getTime() << std::endl;
+        }
+
+        for (auto &recipe : recipes) {
+            for (auto &recipe_ingr : recipe.getIngredients()) {
+                std::cout << recipe_ingr.second << std::endl;
+            }
         }
 
         plazza::Reception reception(config);
