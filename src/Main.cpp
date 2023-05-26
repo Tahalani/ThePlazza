@@ -5,13 +5,27 @@
 ** main
 */
 
-#include <iostream>
 #include "Configuration.hpp"
 #include "Reception.hpp"
+#include "PizzaRecipe.hpp"
 
 int main(int argc, char const *argv[]) {
     try {
         plazza::Configuration config(argc, argv);
+        config.setPizzaRecipes(CONF_PATH);
+        std::vector<plazza::PizzaRecipe> recipes = config.getPizzaRecipes();
+
+        for (auto &recipe : recipes) {
+            std::cout << recipe.getName() << std::endl;
+            std::cout << recipe.getTime() << std::endl;
+        }
+
+        for (auto &recipe : recipes) {
+            for (auto &recipe_ingr : recipe.getIngredients()) {
+                std::cout << recipe_ingr.second << std::endl;
+            }
+        }
+
         plazza::Reception reception(config);
         reception.run();
     } catch (plazza::ConfigurationException &e) {
@@ -19,6 +33,9 @@ int main(int argc, char const *argv[]) {
         return 84;
     } catch (plazza::LoggerException &e) {
         std::cerr << "Logging is unavailable" << std::endl;
+        return 84;
+    } catch (plazza::RecipeException &e) {
+        std::cerr << e.what() << std::endl;
         return 84;
     }
     return 0;

@@ -6,51 +6,61 @@
 */
 
 #ifndef CONFIGURATION_HPP_
-#define CONFIGURATION_HPP_
+    #define CONFIGURATION_HPP_
 
-#include <exception>
-#include <sstream>
-#include <string>
+    #include <exception>
+    #include <sstream>
+    #include <string>
+    #include <vector>
 
-namespace plazza {
-    class ConfigurationException : std::exception {
-        public:
-            explicit ConfigurationException(std::string message);
-            ~ConfigurationException() override = default;
+    #include "PizzaRecipe.hpp"
 
-            [[nodiscard]] const char *what() const noexcept override;
+    #define CONF_PATH "config/"
 
-        private:
-            std::string _message;
-    };
+    namespace plazza {
+        class ConfigurationException : std::exception {
+            public:
+                explicit ConfigurationException(std::string message);
+                ~ConfigurationException() override = default;
 
-    class Configuration {
-        public:
-            Configuration(int argc, char const *argv[]);
-            ~Configuration() = default;
+                [[nodiscard]] const char *what() const noexcept override;
 
-            [[nodiscard]] float getTimeMultiplier() const;
-            [[nodiscard]] int getCooksPerKitchen() const;
-            [[nodiscard]] int getRefillTime() const;
+            private:
+                std::string _message;
+        };
 
-        template<typename T>
-        T parse(const std::string &str)
-        {
-            std::stringstream stream(str);
-            T value;
+        class Configuration {
+            public:
+                Configuration(int argc, char const *argv[]);
+                ~Configuration() = default;
 
-            stream >> value;
-            if (stream.fail() || !stream.eof()) {
-                throw ConfigurationException(str + ": Invalid argument");
+                [[nodiscard]] float getTimeMultiplier() const;
+                [[nodiscard]] int getCooksPerKitchen() const;
+                [[nodiscard]] int getRefillTime() const;
+
+            template<typename T>
+            T parse(const std::string &str)
+            {
+                std::stringstream stream(str);
+                T value;
+
+                stream >> value;
+                if (stream.fail() || !stream.eof()) {
+                    throw ConfigurationException(str + ": Invalid argument");
+                }
+                return value;
             }
-            return value;
-        }
 
-        private:
-            float _timeMultiplier;
-            int _cooksPerKitchen;
-            int _refillTime;
-    };
-}
+            [[nodiscard]] const std::vector<PizzaRecipe>getPizzaRecipes() const { return _pizzaRecipes; };
+
+            void setPizzaRecipes(const std::string &str);
+
+            private:
+                std::vector<PizzaRecipe> _pizzaRecipes;
+                float _timeMultiplier;
+                int _cooksPerKitchen;
+                int _refillTime;
+        };
+    }
 
 #endif

@@ -15,6 +15,7 @@ SRC			=	src/kitchen/Cook.cpp \
 				src/util/Communication.cpp \
 				src/util/Logger.cpp \
 				src/Configuration.cpp \
+				src/PizzaRecipe.cpp \
 				src/Main.cpp
 
 OBJ			=	$(SRC:.cpp=.o)
