@@ -5,11 +5,13 @@
 ** ThreadPool.cpp
 */
 
+#include <iostream>
 #include "ThreadPool.hpp"
 
 plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &config, const plazza::PlazzaIPC &ipc): _parentPid(parentPid), _config(config), _ipc(ipc), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
-    for (int i = 0; i <= config.getCooksPerKitchen(); i++) {
+    for (int i = 0; i < config.getCooksPerKitchen(); i++) {
         this->_cooks.emplace_back(&ThreadPool::cookRoutine, this, i);
+        //this->_cooksStatus.emplace_back(CookStatus(), std::mutex());
     }
 }
 
@@ -79,10 +81,13 @@ bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
 }
 
 void plazza::ThreadPool::cookRoutine(int cookId) {
+    std::cout << "Cook " << cookId << " routine started" << std::endl;
     while (true) {
         std::unique_lock<std::mutex> lock(this->_pizzaQueue.second);
         this->_cookCond.wait(lock);
+        std::cout << "Got a pizza to cook" << std::endl;
         if (this->_pizzaQueue.first.empty()) {
+            std::cout << "No pizza to cook" << std::endl;
             return;
         }
         Pizza pizza = this->_pizzaQueue.first.front();
@@ -92,16 +97,21 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
         // float millis = (float) this->_ingredients_per_pizza[pizza.type].second * 1000 * multiplier;
         float millis = 2000;
         lock = std::unique_lock<std::mutex>(this->_cooksStatus[cookId].second);
-        this->_cooksStatus[cookId].first.pizza = pizza;
+        this->_cooksStatus[cookId].first.type = pizza.type;
+        this->_cooksStatus[cookId].first.size = pizza.size;
         this->_cooksStatus[cookId].first.cookTime = (long) millis;
         this->_cooksStatus[cookId].first.startTime = time(nullptr);
         lock.unlock();
+        std::cout << "Cooking..." << std::endl;
         std::cv_status result = this->_cookCond.wait_for(lock, std::chrono::milliseconds((long) millis));
         if (result == std::cv_status::no_timeout) {
+            std::cout << "Cooking interrupted" << std::endl;
             return;
         }
+        std::cout << "Cooked!" << std::endl;
         this->_ipc << this->_parentPid << MessageType::PIZZA << pizza;
     }
+    std::cout << "Cook routine ended" << std::endl;
 }
 
 void plazza::ThreadPool::refillRoutine(int refillTime) {

@@ -10,7 +10,12 @@
 #include "ThreadPool.hpp"
 
 plazza::Kitchen::Kitchen(size_t id, Configuration &config, const PlazzaIPC &ipc) : _id(id), _config(config), _ipc(ipc), _parent_pid(getpid()), _kitchen_pid(0) {
+    std::cout << "Kitchen ctor" << std::endl;
     this->_ingredients = {5, 5, 5, 5, 5, 5, 5, 5, 5};
+}
+
+plazza::Kitchen::~Kitchen() {
+    std::cout << "Kitchen dtor in pid " << getpid() << std::endl;
 }
 
 pid_t plazza::Kitchen::getKitchenPid() const {
@@ -23,9 +28,11 @@ void plazza::Kitchen::openKitchen(const Pizza &firstPizza) {
     if (pid == -1) {
         throw CommunicationException("fork failed");
     } else if (pid == 0) {
+        std::cout << "Kitchen " << this->_id << " forked" << std::endl;
         this->run(firstPizza);
         exit(0);
     } else {
+        std::cout << "Kitchen " << this->_id << " registed with pid " << pid << std::endl;
         this->_kitchen_pid = pid;
     }
 }

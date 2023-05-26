@@ -12,9 +12,12 @@
 #include "Reception.hpp"
 
 plazza::Reception::Reception(const Configuration &config): _shell(config.getPizzaRecipes()), _config(config), _ipc(getpid()), _receptionIPC(config, this->_ipc), _nextOrderId(1) {
-
+    std::cout << "Reception ctor" << std::endl;
 }
 
+plazza::Reception::~Reception() {
+    std::cout << "Reception dtor" << std::endl;
+}
 
 void plazza::Reception::run() {
     bool exit = false;

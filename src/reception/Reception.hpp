@@ -18,6 +18,7 @@ namespace plazza {
     class Reception {
         public:
             explicit Reception(const Configuration &config);
+            ~Reception();
 
             void run();
 

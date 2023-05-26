@@ -10,7 +10,7 @@
 #include "ReceptionIPC.hpp"
 
 plazza::ReceptionIPC::ReceptionIPC(const Configuration &config, const PlazzaIPC &ipc) : _config(config), _ipc(ipc), _thread(std::thread(&ReceptionIPC::ipcRoutine, this, getpid())), _nextKitchenId(1) {
-
+    std::cout << "ReceptionIPC ctor" << std::endl;
 }
 
 plazza::ReceptionIPC::~ReceptionIPC() {
@@ -18,9 +18,11 @@ plazza::ReceptionIPC::~ReceptionIPC() {
     if (this->_thread.joinable()) {
         this->_thread.join();
     }
+    std::cout << "ReceptionIPC dtor" << std::endl;
 }
 
 void plazza::ReceptionIPC::ipcRoutine(pid_t parentPid) {
+    std::cout << "ReceptionIPC thread start" << std::endl;
     bool exit = false;
 
     while (!exit) {
@@ -38,6 +40,7 @@ void plazza::ReceptionIPC::ipcRoutine(pid_t parentPid) {
                 break;
         }
     }
+    std::cout << "ReceptionIPC thread end" << std::endl;
 }
 
 bool plazza::ReceptionIPC::exitHandler(pid_t parentPid, pid_t senderPid) {
@@ -79,8 +82,8 @@ void plazza::ReceptionIPC::pizzaHandler(pid_t parentPid, pid_t senderPid) {
 }
 
 void plazza::ReceptionIPC::createKitchen(const plazza::Pizza &firstPizza) {
-    Kitchen kitchen = this->_kitchens.emplace_back(this->_nextKitchenId, this->_config, this->_ipc);
-    kitchen.openKitchen(firstPizza);
+    this->_kitchens.emplace_back(this->_nextKitchenId, this->_config, this->_ipc);
+    this->_kitchens[this->_kitchens.size() - 1].openKitchen(firstPizza);
     this->_nextKitchenId++;
     // TODO: Log kitchen creation
 }

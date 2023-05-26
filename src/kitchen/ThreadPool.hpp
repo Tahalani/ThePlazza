@@ -18,7 +18,8 @@
 
 namespace plazza {
     struct CookStatus {
-        Pizza pizza;
+        std::string type;
+        PizzaSize size;
         long cookTime;
         time_t startTime;
     };
