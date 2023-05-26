@@ -17,12 +17,7 @@ const char *plazza::CommandException::what() const noexcept {
     return this->_message.c_str();
 }
 
-plazza::Shell::Shell(): _pizzaTypes(), _pizzaSizes() {
-    this->_pizzaTypes["regina"] = plazza::PizzaType::Regina;
-    this->_pizzaTypes["margarita"] = plazza::PizzaType::Margarita;
-    this->_pizzaTypes["americana"] = plazza::PizzaType::Americana;
-    this->_pizzaTypes["fantasia"] = plazza::PizzaType::Fantasia;
-
+plazza::Shell::Shell(const std::vector<PizzaRecipe> &recipes): _recipes(recipes), _pizzaSizes() {
     this->_pizzaSizes["S"] = plazza::PizzaSize::S;
     this->_pizzaSizes["M"] = plazza::PizzaSize::M;
     this->_pizzaSizes["L"] = plazza::PizzaSize::L;
@@ -30,7 +25,7 @@ plazza::Shell::Shell(): _pizzaTypes(), _pizzaSizes() {
     this->_pizzaSizes["XXL"] = plazza::PizzaSize::XXL;
 }
 
-std::vector<plazza::PizzaCommand> plazza::Shell::getNextOrder() {
+std::optional<std::vector<plazza::PizzaCommand>> plazza::Shell::getNextOrder() {
     size_t pos = 0;
     std::string buffer;
     std::string str;
@@ -40,6 +35,9 @@ std::vector<plazza::PizzaCommand> plazza::Shell::getNextOrder() {
 
     if (!res) {
         throw plazza::InputException();
+    }
+    if (buffer == "status") {
+        return std::nullopt;
     }
     do {
         pos = buffer.find(';');
@@ -51,9 +49,9 @@ std::vector<plazza::PizzaCommand> plazza::Shell::getNextOrder() {
 }
 
 plazza::PizzaCommand plazza::Shell::parseOrder(std::string &order) {
+    bool nameValid = false;
     std::string name;
-    std::string type;
-    std::regex command_regex(R"(^ *(regina|margarita|americana|fantasia) (S|M|L|XL|XXL) x([1-9][0-9]*) *$)");
+    std::regex command_regex(R"(^ *(\w+) (S|M|L|XL|XXL) x([1-9][0-9]*) *$)");
     std::smatch command_match;
 
     if (!std::regex_match(order, command_match, command_regex) || command_match.size() != 4) {
@@ -63,10 +61,21 @@ plazza::PizzaCommand plazza::Shell::parseOrder(std::string &order) {
     if (quantity <= 0) {
         throw plazza::CommandException(order + ": Invalid quantity");
     }
+    for (auto &recipe : this->_recipes) {
+        if (recipe.getName() == command_match[1]) {
+            nameValid = true;
+            name = recipe.getName();
+            break;
+        }
+    }
+    if (!nameValid) {
+        throw plazza::CommandException(order + ": Unknown pizza");
+    }
+
     return PizzaCommand {
         {
-        this->_pizzaTypes[command_match[1]],
-        this->_pizzaSizes[command_match[2]]
+            name,
+            this->_pizzaSizes[command_match[2]]
         },
         quantity
     };

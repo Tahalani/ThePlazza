@@ -12,10 +12,7 @@
     #include <sstream>
     #include <string>
     #include <vector>
-
     #include "PizzaRecipe.hpp"
-
-    #define CONF_PATH "config/"
 
     namespace plazza {
         class ConfigurationException : std::exception {
@@ -31,35 +28,32 @@
 
         class Configuration {
             public:
-                Configuration(int argc, char const *argv[]);
+                Configuration(int argc, char const *argv[], const std::string &configFolder);
                 ~Configuration() = default;
 
                 [[nodiscard]] float getTimeMultiplier() const;
                 [[nodiscard]] int getCooksPerKitchen() const;
                 [[nodiscard]] int getRefillTime() const;
+                [[nodiscard]] const std::vector<PizzaRecipe> &getPizzaRecipes() const;
 
-            template<typename T>
-            T parse(const std::string &str)
-            {
-                std::stringstream stream(str);
-                T value;
+                template<typename T>
+                T parse(const std::string &str)
+                {
+                    std::stringstream stream(str);
+                    T value;
 
-                stream >> value;
-                if (stream.fail() || !stream.eof()) {
-                    throw ConfigurationException(str + ": Invalid argument");
+                    stream >> value;
+                    if (stream.fail() || !stream.eof()) {
+                        throw ConfigurationException(str + ": Invalid argument");
+                    }
+                    return value;
                 }
-                return value;
-            }
 
-            [[nodiscard]] const std::vector<PizzaRecipe>getPizzaRecipes() const { return _pizzaRecipes; };
-
-            void setPizzaRecipes(const std::string &str);
-
-            private:
-                std::vector<PizzaRecipe> _pizzaRecipes;
-                float _timeMultiplier;
-                int _cooksPerKitchen;
-                int _refillTime;
+                private:
+                    std::vector<PizzaRecipe> _pizzaRecipes;
+                    float _timeMultiplier;
+                    int _cooksPerKitchen;
+                    int _refillTime;
         };
     }
 

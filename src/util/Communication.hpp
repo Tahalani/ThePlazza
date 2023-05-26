@@ -8,13 +8,11 @@
 #ifndef COMMUNICATION_HPP_
 #define COMMUNICATION_HPP_
 
-#include <iostream>
-#include <csignal>
 #include <exception>
+#include <string>
 #include <sys/msg.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <string>
 
 namespace plazza {
     class CommunicationException : std::exception {
@@ -33,7 +31,6 @@ namespace plazza {
             Communication();
             ~Communication();
 
-        protected:
             template<typename T>
             struct Message {
                 long type;
@@ -48,8 +45,7 @@ namespace plazza {
                         getpid(),
                         data,
                 };
-                if (msgsnd(this->_queue_id, &message, size + sizeof(long) + sizeof(pid_t), 0) == -1) {
-                    perror("msgsnd"); // TODO: remove debug
+                if (msgsnd(this->_queue_id, &message, size + sizeof(pid_t), 0) == -1) {
                     throw CommunicationException("msgsnd failed");
                 }
             }
@@ -58,7 +54,6 @@ namespace plazza {
             Message<T> receiveMessage(size_t size = sizeof(T)) {
                 Message<T> message;
                 if (msgrcv(this->_queue_id, &message, size + sizeof(long) + sizeof(pid_t), getpid(), 0) == -1) {
-                    perror("msgrcv"); // TODO: remove debug
                     throw CommunicationException("msgrcv failed");
                 }
                 return message;

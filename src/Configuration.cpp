@@ -20,7 +20,7 @@ const char *plazza::ConfigurationException::what() const noexcept {
 }
 
 
-plazza::Configuration::Configuration(int argc, const char **argv) {
+plazza::Configuration::Configuration(int argc, const char **argv, const std::string &configFolder) {
     if ((argc == 2 && argv[1] == std::string("-h")) || argc != 4) {
         throw plazza::ConfigurationException("USAGE: " + std::string(argv[0]) + " [multiplier] [cooks] [refill]");
     }
@@ -38,6 +38,15 @@ plazza::Configuration::Configuration(int argc, const char **argv) {
     if (this->_refillTime < 0) {
         throw plazza::ConfigurationException("Refill time must be positive");
     }
+
+    for (auto &entry : std::filesystem::directory_iterator(configFolder)) {
+        try {
+            std::string pathConf = entry.path().string();
+            _pizzaRecipes.emplace_back(pathConf, std::move(_pizzaRecipes));
+        } catch (RecipeException &e) {
+            throw ConfigurationException(e.what());
+        }
+    }
 }
 
 float plazza::Configuration::getTimeMultiplier() const {
@@ -52,10 +61,6 @@ int plazza::Configuration::getRefillTime() const {
     return this->_refillTime;
 }
 
-void plazza::Configuration::setPizzaRecipes(const std::string &path)
-{
-    for (auto &entry : std::filesystem::directory_iterator(path)) {
-        std::string pathConf = entry.path().string();
-        _pizzaRecipes.emplace_back(PizzaRecipe(pathConf, std::move(_pizzaRecipes)));
-    }
+const std::vector<plazza::PizzaRecipe> &plazza::Configuration::getPizzaRecipes() const {
+    return this->_pizzaRecipes;
 }

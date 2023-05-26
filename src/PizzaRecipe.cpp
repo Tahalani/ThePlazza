@@ -5,10 +5,8 @@
 ** Pizza_Recipe
 */
 
+#include <fstream>
 #include "PizzaRecipe.hpp"
-#include <sstream>
-#include <utility>
-#include <string>
 
 plazza::RecipeException::RecipeException(std::string message): _message(std::move(message))
 {
@@ -20,28 +18,28 @@ const char *plazza::RecipeException::what() const noexcept
     return _message.c_str();
 }
 
-plazza::PizzaRecipe::PizzaRecipe(std::string filepath, std::vector<PizzaRecipe> const &_pizzaRecipes)
+plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaRecipe> const &_pizzaRecipes): _time(0)
 {
     std::string token;
     std::ifstream file;
     Ingredients tmp;
 
     file.open(filepath);
-    if (!file.is_open())
+    if (!file.is_open()) {
         throw RecipeException("Cannot open file");
-
-    file >> _name;
-    file >> _time;
-
-    if (_name.empty())
-        throw RecipeException("Invalid name");
-    if (_time <= 0)
-        throw RecipeException("Invalid time");
-    for (auto &pizza: _pizzaRecipes) {
-        if (pizza.getName() == _name)
-            throw RecipeException("Pizza already exists");
     }
-
+    file >> this->_name >> this->_time;
+    if (this->_name.empty() || this->_name.size() > PIZZA_SIZE) {
+        throw RecipeException("Invalid name");
+    }
+    if (this->_time <= 0) {
+        throw RecipeException("Invalid time");
+    }
+    for (auto &pizza: _pizzaRecipes) {
+        if (pizza.getName() == this->_name) {
+            throw RecipeException("Pizza already exists");
+        }
+    }
     for (size_t i = 0; std::getline(file, token, ':'); i++) {
         if (i == 0)
             token.erase(token.begin());
@@ -52,7 +50,7 @@ plazza::PizzaRecipe::PizzaRecipe(std::string filepath, std::vector<PizzaRecipe> 
         } else {
             if (token[0] < '0' || token[0] > '9')
                 throw RecipeException("Invalid quantity");
-            _ingredients.insert(std::pair<Ingredients, int>(tmp, std::stoi(token)));
+            this->_ingredients.insert(std::pair<Ingredients, int>(tmp, std::stoi(token)));
         }
     }
     file.close();

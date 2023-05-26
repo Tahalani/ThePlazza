@@ -23,7 +23,7 @@ namespace plazza {
             explicit Logger(const std::string &_filepath = LOG_FILEPATH);
             ~Logger();
 
-            void log(const std::string &message);
+            void operator<<(const std::string &message);
 
         private:
             std::ofstream _file;

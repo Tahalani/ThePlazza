@@ -6,20 +6,18 @@
 */
 
 #ifndef PIZZADATA_HPP_
-    #define PIZZADATA_HPP_
+#define PIZZADATA_HPP_
+
+#define CONFIG_FOLDER "config/"
+#define PIZZA_SIZE 16
+
+#include <string>
 
 namespace plazza {
     enum class MessageType {
         EXIT,
+        STATUS,
         PIZZA,
-        PIZZA_RESPONSE,
-    };
-
-    enum class PizzaType {
-        Regina,
-        Margarita,
-        Americana,
-        Fantasia
     };
 
     enum class PizzaSize {
@@ -43,7 +41,7 @@ namespace plazza {
     };
 
     struct Pizza {
-        PizzaType type;
+        std::string type;
         PizzaSize size;
     };
 

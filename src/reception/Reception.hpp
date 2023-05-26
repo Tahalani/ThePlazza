@@ -35,9 +35,7 @@ namespace plazza {
             ReceptionIPC _ipc;
             Logger _logger;
             std::vector<PizzaOrder> _orders;
-            std::vector<pid_t> _kitchens;
             size_t _nextOrderId;
-            size_t _nextKitchenId;
     };
 }
 

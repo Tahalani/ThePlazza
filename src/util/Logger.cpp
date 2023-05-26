@@ -18,6 +18,6 @@ plazza::Logger::~Logger() {
     this->_file.close();
 }
 
-void plazza::Logger::log(const std::string &message) {
+void plazza::Logger::operator<<(const std::string &message) {
     this->_file << message << std::endl;
 }
