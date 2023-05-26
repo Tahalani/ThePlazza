@@ -7,7 +7,7 @@
 
 #include "ThreadPool.hpp"
 
-plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &config, const plazza::Communication &ipc): _parentPid(parentPid), _config(config), _ipc(ipc), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
+plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &config, const plazza::PlazzaIPC &ipc): _parentPid(parentPid), _config(config), _ipc(ipc), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
     for (int i = 0; i <= config.getCooksPerKitchen(); i++) {
         this->_cooks.emplace_back(&ThreadPool::cookRoutine, this, i);
     }
@@ -39,16 +39,16 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
     this->_cookCond.notify_one();
 
     while (true) {
-        auto type = this->_ipc.receiveMessage<plazza::MessageType>();
+        Message<MessageType> type = this->_ipc.getNextMessage();
         if (type.data == MessageType::PIZZA) {
-            auto pizza = this->_ipc.receiveMessage<plazza::Pizza>();
-            if (!this->canAcceptPizza(pizza.data)) {
+            Pizza pizza;
+            this->_ipc << pizza;
+            if (!this->canAcceptPizza(pizza)) {
                 lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
-                this->_ipc.sendMessage(plazza::MessageType::PIZZA, this->_parentPid);
-                this->_ipc.sendMessage(pizza, this->_parentPid);
+                this->_ipc << this->_parentPid << MessageType::PIZZA << pizza;
                 continue;
             }
-            this->_pizzaQueue.first.push(pizza.data);
+            this->_pizzaQueue.first.push(pizza);
             lock.unlock();
             this->_cookCond.notify_one();
         } else if (type.data == MessageType::EXIT) {
@@ -100,8 +100,7 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
         if (result == std::cv_status::no_timeout) {
             return;
         }
-        this->_ipc.sendMessage(MessageType::PIZZA, this->_parentPid);
-        this->_ipc.sendMessage(pizza, this->_parentPid);
+        this->_ipc << this->_parentPid << MessageType::PIZZA << pizza;
     }
 }
 

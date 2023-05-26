@@ -13,6 +13,7 @@ SRC			=	src/kitchen/Kitchen.cpp \
 				src/reception/Shell.cpp \
 				src/util/Communication.cpp \
 				src/util/Logger.cpp \
+				src/util/PlazzaIPC.cpp \
 				src/Configuration.cpp \
 				src/PizzaRecipe.cpp \
 				src/Main.cpp

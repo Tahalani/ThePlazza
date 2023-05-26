@@ -11,7 +11,7 @@
 plazza::PizzaOrder::PizzaOrder(const std::vector<PizzaCommand> &order, size_t id): _id(id) {
     for (auto &pizza : order) {
         for (int i = 0; i < pizza.quantity; i++) {
-            this->_pizzasToDeliver.emplace_back(Pizza { pizza.type, pizza.size });
+            this->_pizzasToDeliver.emplace_back(Pizza { pizza.type, pizza.size, false });
         }
     }
 }

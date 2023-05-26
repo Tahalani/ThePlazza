@@ -24,15 +24,11 @@ namespace plazza {
         private:
             PizzaOrder &registerOrder(const std::vector<PizzaCommand> &command);
             void executeOrder(const PizzaOrder &order);
-            void createKitchen(const Pizza &pizza);
-            void logOrderReceived(size_t id);
-            void logOrderReady(size_t id);
-            void messageHandler(MessageType type);
-            bool waitForKitchenResponse(pid_t pid);
 
             Shell _shell;
             Configuration _config;
-            ReceptionIPC _ipc;
+            PlazzaIPC _ipc;
+            ReceptionIPC _receptionIPC;
             Logger _logger;
             std::vector<PizzaOrder> _orders;
             size_t _nextOrderId;

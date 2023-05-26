@@ -9,27 +9,22 @@
 #include "PizzaData.hpp"
 #include "ReceptionIPC.hpp"
 
-plazza::ReceptionIPC::ReceptionIPC(const Configuration &config) : _thread(std::thread(&ReceptionIPC::ipcRoutine, this, getpid())), _config(config), _nextKitchenId(1) {
+plazza::ReceptionIPC::ReceptionIPC(const Configuration &config, const PlazzaIPC &ipc) : _config(config), _ipc(ipc), _thread(std::thread(&ReceptionIPC::ipcRoutine, this, getpid())), _nextKitchenId(1) {
 
 }
 
 plazza::ReceptionIPC::~ReceptionIPC() {
-    this->sendMessage(MessageType::EXIT, getpid());
+    this->_ipc << getpid() << MessageType::EXIT;
     if (this->_thread.joinable()) {
         this->_thread.join();
     }
-}
-
-void plazza::ReceptionIPC::sendPizza(const Pizza &pizza, long target) {
-    this->sendMessage(MessageType::PIZZA, target);
-    this->sendMessage(pizza, target);
 }
 
 void plazza::ReceptionIPC::ipcRoutine(pid_t parentPid) {
     bool exit = false;
 
     while (!exit) {
-        Message<MessageType> type = this->receiveMessage<MessageType>();
+        Message<MessageType> type = this->_ipc.getNextMessage();
 
         switch (type.data) {
             case MessageType::EXIT:
@@ -59,13 +54,14 @@ bool plazza::ReceptionIPC::exitHandler(pid_t parentPid, pid_t senderPid) {
 }
 
 void plazza::ReceptionIPC::pizzaHandler(pid_t parentPid, pid_t senderPid) {
-    Message<Pizza> pizza = this->receiveMessage<Pizza>();
+    Pizza pizza;
+    this->_ipc >> pizza;
 
     if (senderPid == parentPid) {
         if (this->_kitchens.empty()) {
-            this->createKitchen(pizza.data);
+            this->createKitchen(pizza);
         } else {
-            this->sendPizza(pizza.data, this->_kitchens[0].getKitchenPid());
+            this->_ipc << this->_kitchens[0].getKitchenPid() << MessageType::PIZZA;
         }
         return;
     }
@@ -73,9 +69,9 @@ void plazza::ReceptionIPC::pizzaHandler(pid_t parentPid, pid_t senderPid) {
         if (it->getKitchenPid() == senderPid) {
             auto next = ++it;
             if (next == this->_kitchens.end()) {
-                this->createKitchen(pizza.data);
+                this->createKitchen(pizza);
             } else {
-                this->sendPizza(pizza.data, next->getKitchenPid());
+                this->_ipc << next->getKitchenPid() << pizza;
             }
             return;
         }
@@ -83,7 +79,7 @@ void plazza::ReceptionIPC::pizzaHandler(pid_t parentPid, pid_t senderPid) {
 }
 
 void plazza::ReceptionIPC::createKitchen(const plazza::Pizza &firstPizza) {
-    Kitchen kitchen = this->_kitchens.emplace_back(this->_nextKitchenId,this->_config,*static_cast<Communication *>(this));
+    Kitchen kitchen = this->_kitchens.emplace_back(this->_nextKitchenId, this->_config, this->_ipc);
     kitchen.openKitchen(firstPizza);
     this->_nextKitchenId++;
     // TODO: Log kitchen creation

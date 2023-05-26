@@ -12,9 +12,9 @@
 #include <queue>
 #include <thread>
 #include <vector>
-#include "Communication.hpp"
 #include "Configuration.hpp"
 #include "PizzaData.hpp"
+#include "PlazzaIPC.hpp"
 
 namespace plazza {
     struct CookStatus {
@@ -28,7 +28,7 @@ namespace plazza {
         using Sharable = std::pair<T, std::mutex>;
 
         public:
-            ThreadPool(pid_t parentPid, const Configuration &config, const Communication &ipc);
+            ThreadPool(pid_t parentPid, const Configuration &config, const PlazzaIPC &ipc);
             ~ThreadPool();
 
             void run(const Pizza &firstPizza);
@@ -40,7 +40,7 @@ namespace plazza {
 
             pid_t _parentPid;
             Configuration _config;
-            Communication _ipc;
+            PlazzaIPC _ipc;
             std::vector<std::thread> _cooks;
             std::vector<Sharable<CookStatus>> _cooksStatus;
             Sharable<std::queue<Pizza>> _pizzaQueue;

@@ -9,7 +9,7 @@
 #include "Kitchen.hpp"
 #include "ThreadPool.hpp"
 
-plazza::Kitchen::Kitchen(size_t id, Configuration &config, const Communication &ipc) : _id(id), _config(config), _ipc(ipc), _parent_pid(getpid()), _kitchen_pid(0) {
+plazza::Kitchen::Kitchen(size_t id, Configuration &config, const PlazzaIPC &ipc) : _id(id), _config(config), _ipc(ipc), _parent_pid(getpid()), _kitchen_pid(0) {
     this->_ingredients = {5, 5, 5, 5, 5, 5, 5, 5, 5};
 }
 

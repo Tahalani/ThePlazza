@@ -12,14 +12,13 @@
 #include <vector>
 #include "Communication.hpp"
 #include "Kitchen.hpp"
+#include "PlazzaIPC.hpp"
 
 namespace plazza {
-    class ReceptionIPC : Communication {
+    class ReceptionIPC {
         public:
-            explicit ReceptionIPC(const Configuration &config);
+            explicit ReceptionIPC(const Configuration &config, const PlazzaIPC &ipc);
             ~ReceptionIPC();
-
-            void sendPizza(const Pizza &pizza, long target);
 
         private:
             void ipcRoutine(pid_t parentPid);
@@ -27,9 +26,10 @@ namespace plazza {
             void pizzaHandler(pid_t parentPid, pid_t senderPid);
             void createKitchen(const Pizza &firstPizza);
 
+            Configuration _config;
+            PlazzaIPC _ipc;
             std::thread _thread;
             std::vector<Kitchen> _kitchens;
-            Configuration _config;
             size_t _nextKitchenId;
     };
 }

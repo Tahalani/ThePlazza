@@ -15,14 +15,14 @@
 #include <condition_variable>
 #include <thread>
 #include <queue>
-#include "Communication.hpp"
 #include "Configuration.hpp"
 #include "PizzaData.hpp"
+#include "PlazzaIPC.hpp"
 
 namespace plazza {
     class Kitchen {
         public:
-            Kitchen(size_t id, plazza::Configuration &config, const Communication &ipc);
+            Kitchen(size_t id, plazza::Configuration &config, const PlazzaIPC &ipc);
 
             pid_t getKitchenPid() const;
 
@@ -33,7 +33,7 @@ namespace plazza {
 
             size_t _id;
             plazza::Configuration _config;
-            plazza::Communication _ipc;
+            plazza::PlazzaIPC _ipc;
             std::vector<int> _ingredients;
             pid_t _parent_pid;
             pid_t _kitchen_pid;

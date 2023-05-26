@@ -43,9 +43,12 @@ namespace plazza {
     struct Pizza {
         std::string type;
         PizzaSize size;
+        bool cooked;
     };
 
-    struct PizzaCommand : Pizza {
+    struct PizzaCommand {
+        std::string type;
+        PizzaSize size;
         int quantity;
     };
 }

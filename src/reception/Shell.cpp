@@ -73,10 +73,8 @@ plazza::PizzaCommand plazza::Shell::parseOrder(std::string &order) {
     }
 
     return PizzaCommand {
-        {
-            name,
-            this->_pizzaSizes[command_match[2]]
-        },
-        quantity
+        name,
+        this->_pizzaSizes[command_match[2]],
+        quantity,
     };
 }
