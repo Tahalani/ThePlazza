@@ -8,11 +8,11 @@
 #ifndef COMMUNICATION_HPP_
 #define COMMUNICATION_HPP_
 
-#include <csignal>
 #include <exception>
 #include <string>
 #include <sys/msg.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 namespace plazza {
     class CommunicationException : std::exception {
