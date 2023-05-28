@@ -52,24 +52,23 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
     this->takeIngredients(this->_config.getRecipe(firstPizza.type));
 
     while (true) {
-        Message<MessageType> type = this->_ipc->getNextMessage();
-        if (type.data == MessageType::EXIT) {
+        Message<MessageContent> type = this->_ipc->getNextMessage();
+        if (type.data.messageType == MessageType::EXIT) {
             lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
             while (!this->_pizzaQueue.first.empty()) {
                 this->_pizzaQueue.first.pop();
             }
             this->_cookCond.notify_all();
             break;
-        } else if (type.data == MessageType::PIZZA) {
-            Pizza pizza;
-            *this->_ipc >> pizza;
+        } else if (type.data.messageType == MessageType::PIZZA) {
+            Pizza pizza = this->_ipc->unpack(type.data);
             if (!this->canAcceptPizza(pizza)) {
                 *this->_ipc << this->_parentPid << pizza;
                 continue;
             }
             this->_pizzaQueue.first.push(pizza);
             this->_cookCond.notify_one();
-        } else if (type.data == MessageType::STATUS) {
+        } else if (type.data.messageType == MessageType::STATUS) {
             this->showStatus();
         }
     }

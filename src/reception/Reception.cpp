@@ -60,14 +60,14 @@ void plazza::Reception::ipcRoutine(pid_t parentPid) {
     bool exit = false;
 
     while (!exit) {
-        Message<MessageType> type = this->_ipc->getNextMessage();
+        Message<MessageContent> type = this->_ipc->getNextMessage();
 
-        switch (type.data) {
+        switch (type.data.messageType) {
             case MessageType::EXIT:
                 exit = this->exitHandler(parentPid, type.sender);
                 break;
             case MessageType::PIZZA:
-                this->pizzaHandler(parentPid, type.sender);
+                this->pizzaHandler(parentPid, type);
                 break;
             default:
                 break;
@@ -92,9 +92,8 @@ bool plazza::Reception::exitHandler(pid_t parentPid, pid_t senderPid) {
     return false;
 }
 
-void plazza::Reception::pizzaHandler(pid_t parentPid, pid_t senderPid) {
-    Pizza pizza;
-    *this->_ipc >> pizza;
+void plazza::Reception::pizzaHandler(pid_t parentPid, Message<MessageContent> &message) {
+    Pizza pizza = this->_ipc->unpack(message.data);
 
     if (pizza.cooked) {
         *this->_logger >> ("Received cooked pizza: " + pizza.type + " " + *pizza.size);
@@ -109,7 +108,7 @@ void plazza::Reception::pizzaHandler(pid_t parentPid, pid_t senderPid) {
         }
     }
     *this->_logger >> ("Received pizza request: " + pizza.type + " " + *pizza.size);
-    if (senderPid == parentPid) {
+    if (message.sender == parentPid) {
         if (this->_kitchens.empty()) {
             *this->_logger >> "No kitchens found, creating one";
             this->createKitchen(pizza);
@@ -120,7 +119,7 @@ void plazza::Reception::pizzaHandler(pid_t parentPid, pid_t senderPid) {
         return;
     }
     for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); it++) {
-        if ((*it)->getKitchenPid() == senderPid) {
+        if ((*it)->getKitchenPid() == message.sender) {
             auto next = ++it;
             if (next == this->_kitchens.end()) {
                 *this->_logger >> "No kitchens availble, creating one";

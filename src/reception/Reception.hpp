@@ -28,7 +28,7 @@ namespace plazza {
             void executeOrder(const PizzaOrder &order);
             void ipcRoutine(pid_t parentPid);
             bool exitHandler(pid_t parentPid, pid_t senderPid);
-            void pizzaHandler(pid_t parentPid, pid_t senderPid);
+            void pizzaHandler(pid_t parentPid, Message<MessageContent> &message);
             void createKitchen(const Pizza &firstPizza);
             void showStatus();
 

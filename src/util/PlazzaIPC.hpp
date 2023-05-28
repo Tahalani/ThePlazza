@@ -12,7 +12,8 @@
 #include "PizzaData.hpp"
 
 namespace plazza {
-    struct ParsedPizza {
+    struct MessageContent {
+        MessageType messageType;
         char type[PIZZA_SIZE];
         PizzaSize size;
         bool cooked;
@@ -27,12 +28,11 @@ namespace plazza {
             PlazzaIPC &operator<<(const Pizza &pizza);
             void operator>>(Pizza &pizza);
 
-            Message<MessageType> getNextMessage();
+            Message<MessageContent> getNextMessage();
+            Pizza unpack(const MessageContent &pizza);
 
         private:
-            ParsedPizza pack(const Pizza &pizza);
-            Pizza unpack(const ParsedPizza &pizza);
-
+            MessageContent pack(const Pizza &pizza);
             pid_t _receiver;
     };
 }

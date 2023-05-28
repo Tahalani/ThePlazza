@@ -18,18 +18,20 @@ plazza::PlazzaIPC &plazza::PlazzaIPC::operator<<(pid_t receiver) {
 }
 
 plazza::PlazzaIPC &plazza::PlazzaIPC::operator<<(const plazza::MessageType &type) {
-    this->sendMessage(type, this->_receiver);
+    MessageContent packed{};
+
+    packed.messageType = type;
+    this->sendMessage(packed, this->_receiver);
     return *this;
 }
 
 plazza::PlazzaIPC &plazza::PlazzaIPC::operator<<(const plazza::Pizza &pizza) {
-    this->sendMessage(MessageType::PIZZA, this->_receiver);
     this->sendMessage(this->pack(pizza), this->_receiver);
     return *this;
 }
 
 void plazza::PlazzaIPC::operator>>(plazza::Pizza &pizza) {
-    Message<ParsedPizza> message = this->receiveMessage<ParsedPizza>();
+    Message<MessageContent> message = this->receiveMessage<MessageContent>();
     Pizza tmp = this->unpack(message.data);
 
     pizza.type = std::move(tmp.type);
@@ -37,20 +39,21 @@ void plazza::PlazzaIPC::operator>>(plazza::Pizza &pizza) {
     pizza.cooked = tmp.cooked;
 }
 
-plazza::Message<plazza::MessageType> plazza::PlazzaIPC::getNextMessage() {
-    return this->receiveMessage<MessageType>();
+plazza::Message<plazza::MessageContent> plazza::PlazzaIPC::getNextMessage() {
+    return this->receiveMessage<MessageContent>();
 }
 
-plazza::ParsedPizza plazza::PlazzaIPC::pack(const plazza::Pizza &pizza) {
-    ParsedPizza packed{};
+plazza::MessageContent plazza::PlazzaIPC::pack(const plazza::Pizza &pizza) {
+    MessageContent packed{};
 
+    packed.messageType = MessageType::PIZZA;
     strcpy(packed.type, pizza.type.c_str());
     packed.size = pizza.size;
     packed.cooked = pizza.cooked;
     return packed;
 }
 
-plazza::Pizza plazza::PlazzaIPC::unpack(const plazza::ParsedPizza &pizza) {
+plazza::Pizza plazza::PlazzaIPC::unpack(const plazza::MessageContent &pizza) {
     Pizza unpacked{};
 
     unpacked.type = pizza.type;
