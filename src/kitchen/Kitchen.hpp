@@ -24,6 +24,7 @@ namespace plazza {
     class Kitchen {
         public:
             Kitchen(size_t id, plazza::Configuration &config, std::shared_ptr<PlazzaIPC> ipc, std::shared_ptr<Logger> logger);
+            ~Kitchen();
 
             [[nodiscard]] size_t getId() const;
             [[nodiscard]] pid_t getKitchenPid() const;
@@ -32,6 +33,7 @@ namespace plazza {
 
         private:
             void run(const Pizza &firstPizza);
+            void log(const std::string &message);
 
             size_t _id;
             plazza::Configuration _config;

@@ -55,4 +55,7 @@ namespace plazza {
 
 bool operator ==(const plazza::Pizza &a, const plazza::Pizza &b);
 
+std::string operator*(const plazza::PizzaSize &size);
+std::string operator*(const plazza::Ingredients &ingredient);
+
 #endif

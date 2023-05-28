@@ -12,6 +12,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "Logger.hpp"
 #include "PizzaData.hpp"
 #include "PizzaRecipe.hpp"
 
@@ -32,7 +33,7 @@ namespace plazza {
 
     class Shell {
         public:
-            Shell(const std::vector<PizzaRecipe> &recipes);
+            Shell(const std::vector<PizzaRecipe> &recipes, std::shared_ptr<Logger> logger);
 
             std::optional<std::vector<PizzaCommand>> getNextOrder();
 
@@ -41,6 +42,7 @@ namespace plazza {
 
             std::vector<PizzaRecipe> _recipes;
             std::unordered_map<std::string, PizzaSize> _pizzaSizes;
+            std::shared_ptr<Logger> _logger;
     };
 }
 

@@ -8,7 +8,7 @@
 #include <iostream>
 #include "ThreadPool.hpp"
 
-plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &config, std::shared_ptr<plazza::PlazzaIPC> ipc, std::shared_ptr<plazza::Logger> logger): _parentPid(parentPid), _config(config), _ipc(std::move(ipc)), _logger(std::move(logger)), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
+plazza::ThreadPool::ThreadPool(pid_t parentPid, size_t kitchenId, const plazza::Configuration &config, std::shared_ptr<plazza::PlazzaIPC> ipc, std::shared_ptr<plazza::Logger> logger): _parentPid(parentPid), _kitchenId(kitchenId), _config(config), _ipc(std::move(ipc)), _logger(std::move(logger)), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
     std::unique_lock<std::mutex> lock(this->_ingredients.second);
     for (int i = 0; i < config.getCooksPerKitchen(); i++) {
         this->_cooks.emplace_back(&ThreadPool::cookRoutine, this, i);
@@ -59,26 +59,11 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
             }
             this->_pizzaQueue.first.push(pizza);
             this->_cookCond.notify_one();
+        } else if (type.data == MessageType::STATUS) {
+            this->showStatus();
         }
-        // TODO: status
         // TODO: 5s inactivity
     }
-}
-
-bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
-    (void) pizza; // TODO: fix
-    int totalPizzas = 0;
-    time_t now = time(nullptr);
-
-    std::unique_lock<std::mutex> lock(this->_cooksStatus.second);
-    for (auto &it : this->_cooksStatus.first) {
-        if (now - it.startTime <= (long) it.cookTime) {
-            totalPizzas++;
-        }
-    }
-    lock =  std::unique_lock<std::mutex>(this->_pizzaQueue.second);
-    totalPizzas += (int) this->_pizzaQueue.first.size();
-    return totalPizzas < this->_config.getCooksPerKitchen() * 2;
 }
 
 void plazza::ThreadPool::cookRoutine(int cookId) {
@@ -99,8 +84,8 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
         lock = std::unique_lock<std::mutex>(this->_cooksStatus.second);
         this->_cooksStatus.first[cookId].type = pizza.type;
         this->_cooksStatus.first[cookId].size = pizza.size;
-        this->_cooksStatus.first[cookId].cookTime = (long) millis;
-        this->_cooksStatus.first[cookId].startTime = time(nullptr);
+        this->_cooksStatus.first[cookId].cookTime = static_cast<long>(millis);
+        this->_cooksStatus.first[cookId].startTime = this->now();
         lock.unlock();
         lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
         std::cv_status result = this->_exitCond.wait_for(lock, std::chrono::milliseconds((long) millis));
@@ -125,4 +110,54 @@ void plazza::ThreadPool::refillRoutine(int refillTime) {
             // TODO: Debug refill
         }
     }
+}
+
+bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
+    (void) pizza; // TODO: fix
+    int totalPizzas = 0;
+    time_t now = time(nullptr);
+
+    std::unique_lock<std::mutex> lock(this->_cooksStatus.second);
+    for (auto &it : this->_cooksStatus.first) {
+        if (now - it.startTime <= (long) it.cookTime) {
+            totalPizzas++;
+        }
+    }
+    lock =  std::unique_lock<std::mutex>(this->_pizzaQueue.second);
+    totalPizzas += (int) this->_pizzaQueue.first.size();
+    return totalPizzas < this->_config.getCooksPerKitchen() * 2;
+}
+
+void plazza::ThreadPool::showStatus() {
+    std::stringstream stream;
+    stream << "Kitchen #" << this->_kitchenId << ":" << std::endl;
+
+    size_t id = 0;
+    std::unique_lock<std::mutex> lock(this->_cooksStatus.second);
+    for (auto &it : this->_cooksStatus.first) {
+        long cookTime = this->now() - it.startTime;
+        stream << "  - Cook " << id << ": ";
+
+        if (cookTime > it.cookTime) {
+            stream << "Idle";
+        } else {
+            long percentage = cookTime * 100 / it.cookTime;
+            stream << it.type << " " << *it.size << " (" << percentage << "%) [";
+            for (long i = 0; i < 10; i++) {
+                if (i < cookTime * 10 / it.cookTime) {
+                    stream << "=";
+                } else {
+                    stream << " ";
+                }
+            }
+            stream << "]";
+        }
+        id++;
+        stream << std::endl;
+    }
+    *this->_logger << stream.str();
+}
+
+long plazza::ThreadPool::now() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }

@@ -11,6 +11,11 @@
 #include "ThreadPool.hpp"
 
 plazza::Kitchen::Kitchen(size_t id, Configuration &config, std::shared_ptr<PlazzaIPC> ipc, std::shared_ptr<Logger> logger) : _id(id), _config(config), _ipc(std::move(ipc)), _logger(std::move(logger)), _parent_pid(getpid()), _kitchen_pid(0) {
+    this->log("Opening kitchen");
+}
+
+plazza::Kitchen::~Kitchen() {
+    this->log("Closing kitchen");
 
 }
 
@@ -36,7 +41,11 @@ void plazza::Kitchen::openKitchen(const Pizza &firstPizza) {
 }
 
 void plazza::Kitchen::run(const Pizza &firstPizza) {
-    ThreadPool pool(this->_parent_pid, this->_config, this->_ipc, this->_logger);
+    ThreadPool pool(this->_parent_pid, this->_id, this->_config, this->_ipc, this->_logger);
 
     pool.run(firstPizza);
+}
+
+void plazza::Kitchen::log(const std::string &message) {
+    *this->_logger >> ("Kitchen " + std::to_string(this->_id) + ": " + message);
 }

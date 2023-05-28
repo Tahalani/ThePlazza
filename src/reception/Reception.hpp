@@ -30,13 +30,14 @@ namespace plazza {
             bool exitHandler(pid_t parentPid, pid_t senderPid);
             void pizzaHandler(pid_t parentPid, pid_t senderPid);
             void createKitchen(const Pizza &firstPizza);
+            void showStatus();
 
-            Shell _shell;
             Configuration _config;
             std::shared_ptr<PlazzaIPC> _ipc;
             std::shared_ptr<Logger> _logger;
+            Shell _shell;
             std::vector<PizzaOrder> _orders;
-            std::vector<Kitchen> _kitchens;
+            std::vector<std::shared_ptr<Kitchen>> _kitchens;
             size_t _nextOrderId;
             size_t _nextKitchenId;
             std::thread _thread;

@@ -21,12 +21,14 @@ plazza::Logger::~Logger() {
     this->_debug.close();
 }
 
-void plazza::Logger::operator<<(const std::string &message) {
+plazza::Logger &plazza::Logger::operator<<(const std::string &message) {
     this->_log << message << std::endl;
     this->_debug << message << std::endl;
     std::cout << message << std::endl;
+    return *this;
 }
 
-void plazza::Logger::operator>>(const std::string &message) {
+plazza::Logger &plazza::Logger::operator>>(const std::string &message) {
     this->_debug << message << std::endl;
+    return *this;
 }

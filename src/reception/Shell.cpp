@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <regex>
+#include <utility>
 #include "Shell.hpp"
 
 plazza::CommandException::CommandException(std::string message): _message(std::move(message)) {
@@ -17,7 +18,7 @@ const char *plazza::CommandException::what() const noexcept {
     return this->_message.c_str();
 }
 
-plazza::Shell::Shell(const std::vector<PizzaRecipe> &recipes): _recipes(recipes), _pizzaSizes() {
+plazza::Shell::Shell(const std::vector<PizzaRecipe> &recipes, std::shared_ptr<Logger> logger): _recipes(recipes), _logger(std::move(logger)) {
     this->_pizzaSizes["S"] = plazza::PizzaSize::S;
     this->_pizzaSizes["M"] = plazza::PizzaSize::M;
     this->_pizzaSizes["L"] = plazza::PizzaSize::L;
@@ -34,8 +35,10 @@ std::optional<std::vector<plazza::PizzaCommand>> plazza::Shell::getNextOrder() {
     auto &res = std::getline(std::cin, buffer);
 
     if (!res) {
+        *this->_logger >> "Received EOF, exiting";
         throw plazza::InputException();
     }
+    *this->_logger >> ("Received command: '" + buffer.substr(0, buffer.find('\n')) + "'");
     if (buffer == "status") {
         return std::nullopt;
     }
