@@ -6,10 +6,11 @@
 */
 
 #include <mutex>
+#include <utility>
 #include "Kitchen.hpp"
 #include "ThreadPool.hpp"
 
-plazza::Kitchen::Kitchen(size_t id, Configuration &config, const PlazzaIPC &ipc) : _id(id), _config(config), _ipc(ipc), _parent_pid(getpid()), _kitchen_pid(0) {
+plazza::Kitchen::Kitchen(size_t id, Configuration &config, std::shared_ptr<PlazzaIPC> ipc, std::shared_ptr<Logger> logger) : _id(id), _config(config), _ipc(std::move(ipc)), _logger(std::move(logger)), _parent_pid(getpid()), _kitchen_pid(0) {
 
 }
 
@@ -27,17 +28,15 @@ void plazza::Kitchen::openKitchen(const Pizza &firstPizza) {
     if (pid == -1) {
         throw CommunicationException("fork failed");
     } else if (pid == 0) {
-        std::cout << "Kitchen " << this->_id << " forked" << std::endl;
         this->run(firstPizza);
         exit(0);
     } else {
-        std::cout << "Kitchen " << this->_id << " registed with pid " << pid << std::endl;
         this->_kitchen_pid = pid;
     }
 }
 
 void plazza::Kitchen::run(const Pizza &firstPizza) {
-    ThreadPool pool(this->_parent_pid, this->_config, this->_ipc);
+    ThreadPool pool(this->_parent_pid, this->_config, this->_ipc, this->_logger);
 
     pool.run(firstPizza);
 }

@@ -8,7 +8,7 @@
 #include <iostream>
 #include "ThreadPool.hpp"
 
-plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &config, const plazza::PlazzaIPC &ipc): _parentPid(parentPid), _config(config), _ipc(ipc), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
+plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &config, std::shared_ptr<plazza::PlazzaIPC> ipc, std::shared_ptr<plazza::Logger> logger): _parentPid(parentPid), _config(config), _ipc(std::move(ipc)), _logger(std::move(logger)), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
     std::unique_lock<std::mutex> lock(this->_ingredients.second);
     for (int i = 0; i < config.getCooksPerKitchen(); i++) {
         this->_cooks.emplace_back(&ThreadPool::cookRoutine, this, i);
@@ -41,7 +41,7 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
     lock.unlock();
 
     while (true) {
-        Message<MessageType> type = this->_ipc.getNextMessage();
+        Message<MessageType> type = this->_ipc->getNextMessage();
         if (type.data == MessageType::EXIT) {
             lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
             while (!this->_pizzaQueue.first.empty()) {
@@ -51,10 +51,10 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
             break;
         } else if (type.data == MessageType::PIZZA) {
             Pizza pizza;
-            this->_ipc >> pizza;
+            *this->_ipc >> pizza;
             if (!this->canAcceptPizza(pizza)) {
                 lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
-                this->_ipc << this->_parentPid << pizza;
+                *this->_ipc << this->_parentPid << pizza;
                 continue;
             }
             this->_pizzaQueue.first.push(pizza);
@@ -108,7 +108,7 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
             return;
         }
         pizza.cooked = true;
-        this->_ipc << this->_parentPid << pizza;
+        *this->_ipc << this->_parentPid << pizza;
     }
 }
 

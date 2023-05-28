@@ -33,8 +33,8 @@ namespace plazza {
 
             Shell _shell;
             Configuration _config;
-            PlazzaIPC _ipc;
-            Logger _logger;
+            std::shared_ptr<PlazzaIPC> _ipc;
+            std::shared_ptr<Logger> _logger;
             std::vector<PizzaOrder> _orders;
             std::vector<Kitchen> _kitchens;
             size_t _nextOrderId;

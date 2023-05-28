@@ -45,7 +45,6 @@ namespace plazza {
                         data,
                 };
                 if (msgsnd(this->_queue_id, &message, size + sizeof(pid_t), 0) == -1) {
-                    perror("msgsnd");
                     throw CommunicationException("msgsnd failed");
                 }
             }
@@ -54,7 +53,6 @@ namespace plazza {
             Message<T> receiveMessage(size_t size = sizeof(T)) {
                 Message<T> message;
                 if (msgrcv(this->_queue_id, &message, size + sizeof(long) + sizeof(pid_t), getpid(), 0) == -1) {
-                    perror("msgrcv");
                     throw CommunicationException("msgrcv failed");
                 }
                 return message;

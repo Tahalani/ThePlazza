@@ -13,6 +13,7 @@
 #include <thread>
 #include <vector>
 #include "Configuration.hpp"
+#include "Logger.hpp"
 #include "PizzaData.hpp"
 #include "PlazzaIPC.hpp"
 
@@ -29,7 +30,7 @@ namespace plazza {
         using Sharable = std::pair<T, std::mutex>;
 
         public:
-            ThreadPool(pid_t parentPid, const Configuration &config, const PlazzaIPC &ipc);
+            ThreadPool(pid_t parentPid, const Configuration &config, std::shared_ptr<PlazzaIPC> ipc, std::shared_ptr<Logger> logger);
             ~ThreadPool();
 
             void run(const Pizza &firstPizza);
@@ -41,7 +42,8 @@ namespace plazza {
 
             pid_t _parentPid;
             Configuration _config;
-            PlazzaIPC _ipc;
+            std::shared_ptr<PlazzaIPC> _ipc;
+            std::shared_ptr<Logger> _logger;
             Sharable<std::vector<CookStatus>> _cooksStatus;
             Sharable<std::queue<Pizza>> _pizzaQueue;
             Sharable<std::vector<int>> _ingredients;
