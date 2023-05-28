@@ -8,13 +8,7 @@
 #ifndef KITCHEN_HPP_
 #define KITCHEN_HPP_
 
-#include <condition_variable>
-#include <iostream>
-#include <map>
-#include <queue>
-#include <thread>
-#include <unordered_map>
-#include <vector>
+#include <memory>
 #include "Configuration.hpp"
 #include "Logger.hpp"
 #include "PizzaData.hpp"

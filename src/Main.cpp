@@ -5,6 +5,7 @@
 ** main
 */
 
+#include <iostream>
 #include "Configuration.hpp"
 #include "Reception.hpp"
 #include "PizzaRecipe.hpp"

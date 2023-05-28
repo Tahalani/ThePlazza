@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <regex>
-#include <utility>
 #include "Shell.hpp"
 
 plazza::CommandException::CommandException(std::string message): _message(std::move(message)) {
