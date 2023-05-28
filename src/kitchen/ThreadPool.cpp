@@ -64,7 +64,6 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
             Pizza pizza;
             *this->_ipc >> pizza;
             if (!this->canAcceptPizza(pizza)) {
-                lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
                 *this->_ipc << this->_parentPid << pizza;
                 continue;
             }
