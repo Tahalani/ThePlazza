@@ -65,3 +65,15 @@ plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaR
     }
     file.close();
 }
+
+std::string plazza::PizzaRecipe::getName() const {
+    return this->_name;
+}
+
+size_t plazza::PizzaRecipe::getTime() const {
+    return this->_time;
+}
+
+std::unordered_map<plazza::Ingredients, int> &plazza::PizzaRecipe::getIngredients() {
+    return this->_ingredients;
+}

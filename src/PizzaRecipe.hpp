@@ -31,7 +31,6 @@ namespace plazza {
     class RecipeException : std::exception {
         public:
             explicit RecipeException(std::string message);
-            ~RecipeException() override = default;
 
             [[nodiscard]] const char *what() const noexcept override;
 
@@ -43,9 +42,9 @@ namespace plazza {
         public:
             PizzaRecipe(const std::string& filepath, std::vector<PizzaRecipe> const &_pizzaRecipes);
 
-            std::string getName() const { return _name;};
-            int getTime() const { return _time;};
-            std::unordered_map<Ingredients, int> getIngredients() const { return _ingredients;};
+            std::string getName() const;
+            size_t getTime() const;
+            std::unordered_map<Ingredients, int> &getIngredients();
 
         private:
             std::string _name;

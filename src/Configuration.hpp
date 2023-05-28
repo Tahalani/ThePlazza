@@ -18,7 +18,6 @@ namespace plazza {
     class ConfigurationException : std::exception {
         public:
             explicit ConfigurationException(std::string message);
-            ~ConfigurationException() override = default;
 
             [[nodiscard]] const char *what() const noexcept override;
 
@@ -29,7 +28,6 @@ namespace plazza {
     class Configuration {
         public:
             Configuration(int argc, char const *argv[], const std::string &configFolder);
-            ~Configuration() = default;
 
             [[nodiscard]] float getTimeMultiplier() const;
             [[nodiscard]] int getCooksPerKitchen() const;

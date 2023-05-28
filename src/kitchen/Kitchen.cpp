@@ -10,12 +10,7 @@
 #include "ThreadPool.hpp"
 
 plazza::Kitchen::Kitchen(size_t id, Configuration &config, const PlazzaIPC &ipc) : _id(id), _config(config), _ipc(ipc), _parent_pid(getpid()), _kitchen_pid(0) {
-    std::cout << "Kitchen ctor" << std::endl;
-    this->_ingredients = {5, 5, 5, 5, 5, 5, 5, 5, 5};
-}
 
-plazza::Kitchen::~Kitchen() {
-    std::cout << "Kitchen dtor in pid " << getpid() << std::endl;
 }
 
 size_t plazza::Kitchen::getId() const {

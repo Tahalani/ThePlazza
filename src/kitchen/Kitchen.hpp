@@ -8,14 +8,15 @@
 #ifndef KITCHEN_HPP_
 #define KITCHEN_HPP_
 
+#include <condition_variable>
 #include <iostream>
 #include <map>
+#include <queue>
+#include <thread>
 #include <unordered_map>
 #include <vector>
-#include <condition_variable>
-#include <thread>
-#include <queue>
 #include "Configuration.hpp"
+#include "Logger.hpp"
 #include "PizzaData.hpp"
 #include "PlazzaIPC.hpp"
 
@@ -23,7 +24,6 @@ namespace plazza {
     class Kitchen {
         public:
             Kitchen(size_t id, plazza::Configuration &config, const PlazzaIPC &ipc);
-            ~Kitchen();
 
             [[nodiscard]] size_t getId() const;
             [[nodiscard]] pid_t getKitchenPid() const;
@@ -36,7 +36,6 @@ namespace plazza {
             size_t _id;
             plazza::Configuration _config;
             plazza::PlazzaIPC _ipc;
-            std::vector<int> _ingredients;
             pid_t _parent_pid;
             pid_t _kitchen_pid;
     };
