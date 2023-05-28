@@ -42,13 +42,13 @@ namespace plazza {
             pid_t _parentPid;
             Configuration _config;
             PlazzaIPC _ipc;
-            std::vector<std::thread> _cooks;
             Sharable<std::vector<CookStatus>> _cooksStatus;
             Sharable<std::queue<Pizza>> _pizzaQueue;
             Sharable<std::vector<int>> _ingredients;
-            std::thread _refill;
             std::condition_variable _refillCond;
             std::condition_variable _cookCond;
+            std::vector<std::thread> _cooks;
+            std::thread _refill;
     };
 }
 
