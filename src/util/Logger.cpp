@@ -5,19 +5,28 @@
 ** Logger.cpp
 */
 
+#include <iostream>
 #include "Logger.hpp"
 
-plazza::Logger::Logger(const std::string &_filepath) {
-    this->_file.open(_filepath);
-    if (!this->_file.is_open()) {
+plazza::Logger::Logger(const std::string &filepath, const std::string &debugFilepath) {
+    this->_log.open(filepath);
+    this->_debug.open(debugFilepath);
+    if (!this->_log.is_open() || !this->_debug.is_open()) {
         throw LoggerException();
     }
 }
 
 plazza::Logger::~Logger() {
-    this->_file.close();
+    this->_log.close();
+    this->_debug.close();
 }
 
 void plazza::Logger::operator<<(const std::string &message) {
-    this->_file << message << std::endl;
+    this->_log << message << std::endl;
+    this->_debug << message << std::endl;
+    std::cout << message << std::endl;
+}
+
+void plazza::Logger::operator>>(const std::string &message) {
+    this->_debug << message << std::endl;
 }

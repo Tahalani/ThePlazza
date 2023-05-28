@@ -25,6 +25,7 @@ namespace plazza {
             Kitchen(size_t id, plazza::Configuration &config, const PlazzaIPC &ipc);
             ~Kitchen();
 
+            [[nodiscard]] size_t getId() const;
             [[nodiscard]] pid_t getKitchenPid() const;
 
             void openKitchen(const Pizza &firstPizza);

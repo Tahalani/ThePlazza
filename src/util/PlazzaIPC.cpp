@@ -41,9 +41,11 @@ plazza::Message<plazza::MessageType> plazza::PlazzaIPC::getNextMessage() {
     return this->receiveMessage<MessageType>();
 }
 
+#include <iostream>
 plazza::ParsedPizza plazza::PlazzaIPC::pack(const plazza::Pizza &pizza) {
     ParsedPizza packed{};
 
+    std::cout << "Pizza is " << pizza.type << "/" << (int) pizza.size << "/" << pizza.cooked << std::endl;
     strcpy(packed.type, pizza.type.c_str());
     packed.size = pizza.size;
     packed.cooked = pizza.cooked;

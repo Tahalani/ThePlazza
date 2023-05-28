@@ -14,7 +14,6 @@ plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &con
         this->_cooks.emplace_back(&ThreadPool::cookRoutine, this, i);
         this->_cooksStatus.first.emplace_back();
     }
-    lock.unlock();
 }
 
 plazza::ThreadPool::~ThreadPool() {
@@ -23,7 +22,6 @@ plazza::ThreadPool::~ThreadPool() {
     while (!this->_pizzaQueue.first.empty()) {
         this->_pizzaQueue.first.pop();
     }
-    lock.unlock();
     this->_cookCond.notify_all();
     this->_refillCond.notify_all();
     for (auto &it : this->_cooks) {
@@ -39,28 +37,26 @@ plazza::ThreadPool::~ThreadPool() {
 void plazza::ThreadPool::run(const Pizza &firstPizza) {
     std::unique_lock<std::mutex> lock(this->_pizzaQueue.second);
     this->_pizzaQueue.first.push(firstPizza);
-    lock.unlock();
     this->_cookCond.notify_one();
+    lock.unlock();
 
     while (true) {
         Message<MessageType> type = this->_ipc.getNextMessage();
         if (type.data == MessageType::PIZZA) {
             Pizza pizza;
-            this->_ipc << pizza;
+            this->_ipc >> pizza;
             if (!this->canAcceptPizza(pizza)) {
                 lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
                 this->_ipc << this->_parentPid << pizza;
                 continue;
             }
             this->_pizzaQueue.first.push(pizza);
-            lock.unlock();
             this->_cookCond.notify_one();
         } else if (type.data == MessageType::EXIT) {
             lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
             while (!this->_pizzaQueue.first.empty()) {
                 this->_pizzaQueue.first.pop();
             }
-            lock.unlock();
             this->_cookCond.notify_all();
             break;
         }
@@ -68,6 +64,7 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
 }
 
 bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
+    (void) pizza; // TODO: fix
     int totalPizzas = 0;
     time_t now = time(nullptr);
 
@@ -131,8 +128,8 @@ void plazza::ThreadPool::refillRoutine(int refillTime) {
             return;
         }
         for (size_t i = 0; i < this->_ingredients.first.size(); i += 1) {
-            this->_ingredients.first[i] = std::min(5, this->_ingredients.first[i] + 1);
-            // TODO define constant for max ingredients
+            this->_ingredients.first[i] = std::min(MAX_INGREDIENTS, this->_ingredients.first[i] + 1);
+            // TODO: Debug refill
         }
     }
 }

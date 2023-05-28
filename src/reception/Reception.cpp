@@ -10,7 +10,7 @@
 #include "Reception.hpp"
 
 plazza::Reception::Reception(const Configuration &config): _shell(config.getPizzaRecipes()), _config(config), _ipc(getpid()), _nextOrderId(1), _nextKitchenId(1),  _thread(std::thread(&Reception::ipcRoutine, this, getpid())) {
-    std::cout << "Reception ctor" << std::endl;
+    this->_logger >> "Reception is now open";
 }
 
 plazza::Reception::~Reception() {
@@ -18,7 +18,7 @@ plazza::Reception::~Reception() {
     if (this->_thread.joinable()) {
         this->_thread.join();
     }
-    std::cout << "Reception dtor" << std::endl;
+    this->_logger >> "Reception is now closed";
 }
 
 void plazza::Reception::run() {
@@ -32,7 +32,7 @@ void plazza::Reception::run() {
                 continue;
             }
             PizzaOrder &order = this->registerOrder(command.value());
-            //this->logOrderReceived(order.getId());
+            this->_logger << "Order #" + std::to_string(order.getId()) + " registered";
             this->executeOrder(order);
         } catch (plazza::InputException &e) {
             exit = true;
@@ -57,7 +57,6 @@ void plazza::Reception::executeOrder(const PizzaOrder &order) {
 }
 
 void plazza::Reception::ipcRoutine(pid_t parentPid) {
-    std::cout << "Reception thread start" << std::endl;
     bool exit = false;
 
     while (!exit) {
@@ -75,7 +74,6 @@ void plazza::Reception::ipcRoutine(pid_t parentPid) {
                 break;
         }
     }
-    std::cout << "Reception thread end" << std::endl;
 }
 
 bool plazza::Reception::exitHandler(pid_t parentPid, pid_t senderPid) {
@@ -106,7 +104,7 @@ void plazza::Reception::pizzaHandler(pid_t parentPid, pid_t senderPid) {
         for (auto it = this->_orders.begin(); it != this->_orders.end(); it++) {
             if (it->pizzaReceived(pizza)) {
                 if (it->isOrderReady()) {
-                    std::cout << "Order #" << it->getId() << " is ready" << std::endl;
+                    this->_logger << "Order #" + std::to_string(it->getId()) + " is ready";
                     this->_orders.erase(it);
                 }
                 return;
@@ -131,5 +129,7 @@ void plazza::Reception::createKitchen(const plazza::Pizza &firstPizza) {
     this->_kitchens.emplace_back(this->_nextKitchenId, this->_config, this->_ipc);
     this->_kitchens[this->_kitchens.size() - 1].openKitchen(firstPizza);
     this->_nextKitchenId++;
-    // TODO: Log kitchen creation
+
+    size_t id = this->_kitchens[this->_kitchens.size() - 1].getId();
+    this->_logger << "Kitchen #" + std::to_string(id) + " created";
 }

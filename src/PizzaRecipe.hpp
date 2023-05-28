@@ -8,6 +8,8 @@
 #ifndef PIZZA_RECIPE_HPP_
 #define PIZZA_RECIPE_HPP_
 
+#define MAX_INGREDIENTS 5
+
 #include <string>
 #include <unordered_map>
 #include <vector>

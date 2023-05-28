@@ -18,6 +18,10 @@ plazza::Kitchen::~Kitchen() {
     std::cout << "Kitchen dtor in pid " << getpid() << std::endl;
 }
 
+size_t plazza::Kitchen::getId() const {
+    return this->_id;
+}
+
 pid_t plazza::Kitchen::getKitchenPid() const {
     return this->_kitchen_pid;
 }

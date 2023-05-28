@@ -7,13 +7,11 @@
 
 #include <fstream>
 #include "PizzaRecipe.hpp"
-#include <iostream>
 #include <regex>
 #include <unordered_map>
 
 
-plazza::RecipeException::RecipeException(std::string message): _message(std::move(message))
-{
+plazza::RecipeException::RecipeException(std::string message): _message(std::move(message)) {
 
 }
 
@@ -26,8 +24,7 @@ plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaR
 {
     std::string token;
     std::ifstream file;
-    Ingredients tmp;
-    std::regex command_regex(R"(^ *(Dough|Tomato|Gruyere|Ham|Mushrooms|Steak|Eggplant|GoatCheese|ChiefLove):([1-5]+[0-5]*) *$)");
+    std::regex command_regex(R"(^ *(Dough|Tomato|Gruyere|Ham|Mushrooms|Steak|Eggplant|GoatCheese|ChiefLove):([1-9]+[0-9]*) *$)");
     std::smatch command_match;
 
     file.open(filepath);
@@ -53,11 +50,18 @@ plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaR
             throw RecipeException("Pizza already exists");
         }
     }
-    for (size_t i = 0; std::getline(file, token); i++) {
+    while (std::getline(file, token)) {
         if (!std::regex_match(token, command_match, command_regex) || command_match.size() != 3) {
             throw RecipeException("Invalid ingredient");
         }
+        int num = std::stoi(command_match[2]);
+        if (num > MAX_INGREDIENTS) {
+            throw RecipeException("Ingredients quantity above max");
+        }
         this->_ingredients.insert(std::pair<Ingredients, int>(ingredients_array[command_match[1]], std::stoi(command_match[2])));
+    }
+    if (this->_ingredients.empty()) {
+        throw RecipeException("No ingredients");
     }
     file.close();
 }
