@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Compilation
-        timeout-minutes: 2
+        timeout-minutes: 3
         run: make
 
       - name: Clean execution
