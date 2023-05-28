@@ -96,14 +96,8 @@ void plazza::Reception::pizzaHandler(pid_t parentPid, pid_t senderPid) {
     Pizza pizza;
     *this->_ipc >> pizza;
 
-    if (senderPid == parentPid) {
-        if (this->_kitchens.empty()) {
-            this->createKitchen(pizza);
-        } else {
-            *this->_ipc << this->_kitchens[0]->getKitchenPid() << pizza;
-        }
-        return;
-    } else if (pizza.cooked) {
+    if (pizza.cooked) {
+        *this->_logger >> ("Received cooked pizza: " + pizza.type + " " + *pizza.size);
         for (auto it = this->_orders.begin(); it != this->_orders.end(); it++) {
             if (it->pizzaReceived(pizza)) {
                 if (it->isOrderReady()) {
@@ -113,14 +107,26 @@ void plazza::Reception::pizzaHandler(pid_t parentPid, pid_t senderPid) {
                 return;
             }
         }
+    }
+    *this->_logger >> ("Received pizza request: " + pizza.type + " " + *pizza.size);
+    if (senderPid == parentPid) {
+        if (this->_kitchens.empty()) {
+            *this->_logger >> "No kitchens found, creating one";
+            this->createKitchen(pizza);
+        } else {
+            *this->_logger >> ("Sending pizza to kitchen #" + std::to_string(this->_kitchens[0]->getId()));
+            *this->_ipc << this->_kitchens[0]->getKitchenPid() << pizza;
+        }
         return;
     }
     for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); it++) {
         if ((*it)->getKitchenPid() == senderPid) {
             auto next = ++it;
             if (next == this->_kitchens.end()) {
+                *this->_logger >> "No kitchens availble, creating one";
                 this->createKitchen(pizza);
             } else {
+                *this->_logger >> ("Sending pizza to kitchen #" + std::to_string((*it)->getId()));
                 *this->_ipc << (*next)->getKitchenPid() << pizza;
             }
             return;

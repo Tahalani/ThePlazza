@@ -85,20 +85,21 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
         if (this->_pizzaQueue.first.empty()) {
             return;
         }
-        lock = std::unique_lock(this->_lastEvent.second);
-        this->_lastEvent.first = this->now();
         Pizza pizza = this->_pizzaQueue.first.front();
         this->_pizzaQueue.first.pop();
         lock.unlock();
         float time = (float) this->_config.getRecipe(pizza.type).getTime() * this->_config.getTimeMultiplier();
         long millis = static_cast<long>(time);
-        this->log(cookId, "Now cooking " + pizza.type + " " + *pizza.size + " for " + std::to_string(millis) + "ms");
         lock = std::unique_lock<std::mutex>(this->_cooksStatus.second);
         this->_cooksStatus.first[cookId].type = pizza.type;
         this->_cooksStatus.first[cookId].size = pizza.size;
         this->_cooksStatus.first[cookId].cookTime = static_cast<long>(millis);
         this->_cooksStatus.first[cookId].startTime = this->now();
         lock.unlock();
+        lock = std::unique_lock(this->_lastEvent.second);
+        this->_lastEvent.first = this->now();
+        lock.unlock();
+        this->log(cookId, "Now cooking " + pizza.type + " " + *pizza.size + " for " + std::to_string(millis) + "ms");
         lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
         std::cv_status result = this->_exitCond.wait_for(lock, std::chrono::milliseconds((long) millis));
         if (result == std::cv_status::no_timeout) {
@@ -234,5 +235,5 @@ void plazza::ThreadPool::log(const std::string &message) {
 }
 
 void plazza::ThreadPool::log(size_t cookId, const std::string &message) {
-    *this->_logger >> ("Kitchen " + std::to_string(this->_kitchenId) + " (Cook " + std::to_string(cookId) + ": " + message);
+    *this->_logger >> ("Kitchen " + std::to_string(this->_kitchenId) + " (Cook " + std::to_string(cookId) + "): " + message);
 }

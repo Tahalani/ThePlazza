@@ -26,6 +26,7 @@ namespace plazza {
             Kitchen(size_t id, plazza::Configuration &config, std::shared_ptr<PlazzaIPC> ipc, std::shared_ptr<Logger> logger);
             ~Kitchen();
 
+            [[nodiscard]] size_t getId() const;
             [[nodiscard]] pid_t getKitchenPid() const;
 
             void openKitchen(const Pizza &firstPizza);
