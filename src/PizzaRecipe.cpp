@@ -7,6 +7,10 @@
 
 #include <fstream>
 #include "PizzaRecipe.hpp"
+#include <iostream>
+#include <regex>
+#include <unordered_map>
+
 
 plazza::RecipeException::RecipeException(std::string message): _message(std::move(message))
 {
@@ -23,15 +27,24 @@ plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaR
     std::string token;
     std::ifstream file;
     Ingredients tmp;
+    std::regex command_regex(R"(^ *(Dough|Tomato|Gruyere|Ham|Mushrooms|Steak|Eggplant|GoatCheese|ChiefLove):([1-5]+[0-5]*) *$)");
+    std::smatch command_match;
 
     file.open(filepath);
     if (!file.is_open()) {
         throw RecipeException("Cannot open file");
     }
-    file >> this->_name >> this->_time;
+    if (!std::getline(file, token)) {
+        throw RecipeException("Invalid file");
+    }
+    this->_name = token;
     if (this->_name.empty() || this->_name.size() > PIZZA_SIZE) {
         throw RecipeException("Invalid name");
     }
+    if (!std::getline(file, token)) {
+        throw RecipeException("Invalid file");
+    }
+    this->_time = std::stoi(token);
     if (this->_time <= 0) {
         throw RecipeException("Invalid time");
     }
@@ -40,18 +53,11 @@ plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaR
             throw RecipeException("Pizza already exists");
         }
     }
-    for (size_t i = 0; std::getline(file, token, ':'); i++) {
-        if (i == 0)
-            token.erase(token.begin());
-        if (i % 2 == 0) {
-            if (ingredients_array.find(token) == ingredients_array.end())
-                throw RecipeException("Unknown ingredient");
-            tmp = ingredients_array[token];
-        } else {
-            if (token[0] < '0' || token[0] > '9')
-                throw RecipeException("Invalid quantity");
-            this->_ingredients.insert(std::pair<Ingredients, int>(tmp, std::stoi(token)));
+    for (size_t i = 0; std::getline(file, token); i++) {
+        if (!std::regex_match(token, command_match, command_regex) || command_match.size() != 3) {
+            throw RecipeException("Invalid ingredient");
         }
+        this->_ingredients.insert(std::pair<Ingredients, int>(ingredients_array[command_match[1]], std::stoi(command_match[2])));
     }
     file.close();
 }
