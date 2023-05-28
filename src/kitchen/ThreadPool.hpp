@@ -45,8 +45,8 @@ namespace plazza {
             Sharable<std::vector<CookStatus>> _cooksStatus;
             Sharable<std::queue<Pizza>> _pizzaQueue;
             Sharable<std::vector<int>> _ingredients;
-            std::condition_variable _refillCond;
             std::condition_variable _cookCond;
+            std::condition_variable _exitCond;
             std::vector<std::thread> _cooks;
             std::thread _refill;
     };

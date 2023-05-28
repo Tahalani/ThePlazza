@@ -23,7 +23,7 @@ plazza::ThreadPool::~ThreadPool() {
         this->_pizzaQueue.first.pop();
     }
     this->_cookCond.notify_all();
-    this->_refillCond.notify_all();
+    this->_exitCond.notify_all();
     for (auto &it : this->_cooks) {
         if (it.joinable()) {
             it.join();
@@ -42,7 +42,14 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
 
     while (true) {
         Message<MessageType> type = this->_ipc.getNextMessage();
-        if (type.data == MessageType::PIZZA) {
+        if (type.data == MessageType::EXIT) {
+            lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
+            while (!this->_pizzaQueue.first.empty()) {
+                this->_pizzaQueue.first.pop();
+            }
+            this->_cookCond.notify_all();
+            break;
+        } else if (type.data == MessageType::PIZZA) {
             Pizza pizza;
             this->_ipc >> pizza;
             if (!this->canAcceptPizza(pizza)) {
@@ -52,14 +59,9 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
             }
             this->_pizzaQueue.first.push(pizza);
             this->_cookCond.notify_one();
-        } else if (type.data == MessageType::EXIT) {
-            lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
-            while (!this->_pizzaQueue.first.empty()) {
-                this->_pizzaQueue.first.pop();
-            }
-            this->_cookCond.notify_all();
-            break;
         }
+        // TODO: status
+        // TODO: 5s inactivity
     }
 }
 
@@ -80,49 +82,40 @@ bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
 }
 
 void plazza::ThreadPool::cookRoutine(int cookId) {
-    std::cout << "Cook " << cookId << " routine started" << std::endl;
     while (true) {
         std::unique_lock<std::mutex> lock(this->_pizzaQueue.second);
         if (this->_pizzaQueue.first.empty()) {
             this->_cookCond.wait(lock);
         }
-        std::cout << "Got a pizza to cook" << std::endl;
         if (this->_pizzaQueue.first.empty()) {
-            std::cout << "No pizza to cook" << std::endl;
             return;
         }
-        std::cout << "Waiting queue mutex" << std::endl;
         Pizza pizza = this->_pizzaQueue.first.front();
         this->_pizzaQueue.first.pop();
         lock.unlock();
-        std::cout << "Mutex ended" << std::endl;
         // TODO: Determine time
         // float millis = (float) this->_ingredients_per_pizza[pizza.type].second * 1000 * multiplier;
         float millis = 2000;
-        std::cout << "Waiting cook mutex" << std::endl;
         lock = std::unique_lock<std::mutex>(this->_cooksStatus.second);
         this->_cooksStatus.first[cookId].type = pizza.type;
         this->_cooksStatus.first[cookId].size = pizza.size;
         this->_cooksStatus.first[cookId].cookTime = (long) millis;
         this->_cooksStatus.first[cookId].startTime = time(nullptr);
         lock.unlock();
-        std::cout << "Cooking..." << std::endl;
-        std::cv_status result = this->_cookCond.wait_for(lock, std::chrono::milliseconds((long) millis));
+        lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
+        std::cv_status result = this->_exitCond.wait_for(lock, std::chrono::milliseconds((long) millis));
         if (result == std::cv_status::no_timeout) {
-            std::cout << "Cooking interrupted" << std::endl;
             return;
         }
-        std::cout << "Cooked!" << std::endl;
         pizza.cooked = true;
         this->_ipc << this->_parentPid << pizza;
     }
-    std::cout << "Cook routine ended" << std::endl;
 }
 
 void plazza::ThreadPool::refillRoutine(int refillTime) {
     while (true) {
         std::unique_lock<std::mutex> lock(this->_ingredients.second);
-        std::cv_status status = this->_refillCond.wait_for(lock, std::chrono::milliseconds(refillTime));
+        std::cv_status status = this->_exitCond.wait_for(lock, std::chrono::milliseconds(refillTime));
 
         if (status == std::cv_status::no_timeout) {
             return;

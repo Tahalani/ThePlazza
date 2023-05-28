@@ -78,6 +78,9 @@ void plazza::Reception::ipcRoutine(pid_t parentPid) {
 
 bool plazza::Reception::exitHandler(pid_t parentPid, pid_t senderPid) {
     if (senderPid == parentPid) {
+        for (auto &kitchen : this->_kitchens) {
+            this->_ipc << kitchen.getKitchenPid() << MessageType::EXIT;
+        }
         return true;
     }
     for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); it++) {
