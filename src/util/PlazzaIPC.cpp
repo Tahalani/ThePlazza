@@ -34,6 +34,7 @@ void plazza::PlazzaIPC::operator>>(plazza::Pizza &pizza) {
 
     pizza.type = std::move(tmp.type);
     pizza.size = tmp.size;
+    pizza.cooked = tmp.cooked;
 }
 
 plazza::Message<plazza::MessageType> plazza::PlazzaIPC::getNextMessage() {

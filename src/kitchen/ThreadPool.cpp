@@ -9,10 +9,12 @@
 #include "ThreadPool.hpp"
 
 plazza::ThreadPool::ThreadPool(pid_t parentPid, const plazza::Configuration &config, const plazza::PlazzaIPC &ipc): _parentPid(parentPid), _config(config), _ipc(ipc), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
+    std::unique_lock<std::mutex> lock(this->_ingredients.second);
     for (int i = 0; i < config.getCooksPerKitchen(); i++) {
         this->_cooks.emplace_back(&ThreadPool::cookRoutine, this, i);
-        //this->_cooksStatus.emplace_back(CookStatus(), std::mutex());
+        this->_cooksStatus.first.emplace_back();
     }
+    lock.unlock();
 }
 
 plazza::ThreadPool::~ThreadPool() {
@@ -47,7 +49,7 @@ void plazza::ThreadPool::run(const Pizza &firstPizza) {
             this->_ipc << pizza;
             if (!this->canAcceptPizza(pizza)) {
                 lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
-                this->_ipc << this->_parentPid << MessageType::PIZZA << pizza;
+                this->_ipc << this->_parentPid << pizza;
                 continue;
             }
             this->_pizzaQueue.first.push(pizza);
@@ -69,13 +71,13 @@ bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
     int totalPizzas = 0;
     time_t now = time(nullptr);
 
-    for (auto &it : this->_cooksStatus) {
-        std::unique_lock<std::mutex> lock(it.second);
-        if (now - it.first.startTime <= (long) it.first.cookTime) {
+    std::unique_lock<std::mutex> lock(this->_cooksStatus.second);
+    for (auto &it : this->_cooksStatus.first) {
+        if (now - it.startTime <= (long) it.cookTime) {
             totalPizzas++;
         }
     }
-    std::unique_lock<std::mutex> lock(this->_pizzaQueue.second);
+    lock =  std::unique_lock<std::mutex>(this->_pizzaQueue.second);
     totalPizzas += (int) this->_pizzaQueue.first.size();
     return totalPizzas < this->_config.getCooksPerKitchen() * 2;
 }
@@ -84,23 +86,28 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
     std::cout << "Cook " << cookId << " routine started" << std::endl;
     while (true) {
         std::unique_lock<std::mutex> lock(this->_pizzaQueue.second);
-        this->_cookCond.wait(lock);
+        if (this->_pizzaQueue.first.empty()) {
+            this->_cookCond.wait(lock);
+        }
         std::cout << "Got a pizza to cook" << std::endl;
         if (this->_pizzaQueue.first.empty()) {
             std::cout << "No pizza to cook" << std::endl;
             return;
         }
+        std::cout << "Waiting queue mutex" << std::endl;
         Pizza pizza = this->_pizzaQueue.first.front();
         this->_pizzaQueue.first.pop();
         lock.unlock();
+        std::cout << "Mutex ended" << std::endl;
         // TODO: Determine time
         // float millis = (float) this->_ingredients_per_pizza[pizza.type].second * 1000 * multiplier;
         float millis = 2000;
-        lock = std::unique_lock<std::mutex>(this->_cooksStatus[cookId].second);
-        this->_cooksStatus[cookId].first.type = pizza.type;
-        this->_cooksStatus[cookId].first.size = pizza.size;
-        this->_cooksStatus[cookId].first.cookTime = (long) millis;
-        this->_cooksStatus[cookId].first.startTime = time(nullptr);
+        std::cout << "Waiting cook mutex" << std::endl;
+        lock = std::unique_lock<std::mutex>(this->_cooksStatus.second);
+        this->_cooksStatus.first[cookId].type = pizza.type;
+        this->_cooksStatus.first[cookId].size = pizza.size;
+        this->_cooksStatus.first[cookId].cookTime = (long) millis;
+        this->_cooksStatus.first[cookId].startTime = time(nullptr);
         lock.unlock();
         std::cout << "Cooking..." << std::endl;
         std::cv_status result = this->_cookCond.wait_for(lock, std::chrono::milliseconds((long) millis));
@@ -109,7 +116,8 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
             return;
         }
         std::cout << "Cooked!" << std::endl;
-        this->_ipc << this->_parentPid << MessageType::PIZZA << pizza;
+        pizza.cooked = true;
+        this->_ipc << this->_parentPid << pizza;
     }
     std::cout << "Cook routine ended" << std::endl;
 }

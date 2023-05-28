@@ -64,8 +64,11 @@ void plazza::ReceptionIPC::pizzaHandler(pid_t parentPid, pid_t senderPid) {
         if (this->_kitchens.empty()) {
             this->createKitchen(pizza);
         } else {
-            this->_ipc << this->_kitchens[0].getKitchenPid() << MessageType::PIZZA;
+            this->_ipc << this->_kitchens[0].getKitchenPid() << pizza;
         }
+        return;
+    } else if (pizza.cooked) {
+        std::cout << "Pizza cooked: " << pizza.type << " " << static_cast<int>(pizza.size) << std::endl;
         return;
     }
     for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); it++) {

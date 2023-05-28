@@ -43,7 +43,7 @@ namespace plazza {
             Configuration _config;
             PlazzaIPC _ipc;
             std::vector<std::thread> _cooks;
-            std::vector<Sharable<CookStatus>> _cooksStatus;
+            Sharable<std::vector<CookStatus>> _cooksStatus;
             Sharable<std::queue<Pizza>> _pizzaQueue;
             Sharable<std::vector<int>> _ingredients;
             std::thread _refill;
