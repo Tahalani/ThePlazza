@@ -41,8 +41,12 @@ plazza::Configuration::Configuration(int argc, const char **argv, const std::str
 
     for (auto &entry : std::filesystem::directory_iterator(configFolder)) {
         try {
-            std::string pathConf = entry.path().string();
-            _pizzaRecipes.emplace_back(pathConf, std::move(_pizzaRecipes));
+            PizzaRecipe recipe = PizzaRecipe(entry.path().string());
+
+            if (this->_pizzaRecipes.find(recipe.getName()) != this->_pizzaRecipes.end()) {
+                throw ConfigurationException("Multiple pizzas share the same name");
+            }
+            this->_pizzaRecipes[recipe.getName()] = recipe;
         } catch (RecipeException &e) {
             throw ConfigurationException(e.what());
         }
@@ -61,6 +65,9 @@ int plazza::Configuration::getRefillTime() const {
     return this->_refillTime;
 }
 
-const std::vector<plazza::PizzaRecipe> &plazza::Configuration::getPizzaRecipes() const {
-    return this->_pizzaRecipes;
+plazza::PizzaRecipe &plazza::Configuration::getRecipe(const std::string &name) {
+    if (this->_pizzaRecipes.find(name) == this->_pizzaRecipes.end()) {
+        throw ConfigurationException("Unknown pizza: " + name);
+    }
+    return this->_pizzaRecipes[name];
 }

@@ -20,7 +20,11 @@ const char *plazza::RecipeException::what() const noexcept
     return _message.c_str();
 }
 
-plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaRecipe> const &_pizzaRecipes): _time(0)
+plazza::PizzaRecipe::PizzaRecipe() {
+
+}
+
+plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath)
 {
     std::string token;
     std::ifstream file;
@@ -45,11 +49,6 @@ plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaR
     if (this->_time <= 0) {
         throw RecipeException("Invalid time");
     }
-    for (auto &pizza: _pizzaRecipes) {
-        if (pizza.getName() == this->_name) {
-            throw RecipeException("Pizza already exists");
-        }
-    }
     while (std::getline(file, token)) {
         if (!std::regex_match(token, command_match, command_regex) || command_match.size() != 3) {
             throw RecipeException("Invalid ingredient");
@@ -58,7 +57,7 @@ plazza::PizzaRecipe::PizzaRecipe(const std::string &filepath, std::vector<PizzaR
         if (num > MAX_INGREDIENTS) {
             throw RecipeException("Ingredients quantity above max");
         }
-        this->_ingredients.insert(std::pair<Ingredients, int>(ingredients_array[command_match[1]], std::stoi(command_match[2])));
+        this->_ingredients.insert(std::pair<Ingredients, int>(name_to_ingredient[command_match[1]], std::stoi(command_match[2])));
     }
     if (this->_ingredients.empty()) {
         throw RecipeException("No ingredients");
@@ -74,6 +73,6 @@ size_t plazza::PizzaRecipe::getTime() const {
     return this->_time;
 }
 
-std::unordered_map<plazza::Ingredients, int> &plazza::PizzaRecipe::getIngredients() {
+const std::unordered_map<plazza::Ingredients, int> &plazza::PizzaRecipe::getIngredients() const {
     return this->_ingredients;
 }

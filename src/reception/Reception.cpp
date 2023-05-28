@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "Reception.hpp"
 
-plazza::Reception::Reception(const Configuration &config): _config(config), _ipc(std::make_shared<PlazzaIPC>(getpid())), _logger(std::make_shared<Logger>()), _shell(config.getPizzaRecipes(), this->_logger), _nextOrderId(1), _nextKitchenId(1), _thread(std::thread(&Reception::ipcRoutine, this, getpid())) {
+plazza::Reception::Reception(const Configuration &config): _config(config), _ipc(std::make_shared<PlazzaIPC>(getpid())), _logger(std::make_shared<Logger>()), _shell(config, this->_logger), _nextOrderId(1), _nextKitchenId(1), _thread(std::thread(&Reception::ipcRoutine, this, getpid())) {
     *this->_logger >> "Reception is now open";
 }
 
@@ -66,11 +66,10 @@ void plazza::Reception::ipcRoutine(pid_t parentPid) {
             case MessageType::EXIT:
                 exit = this->exitHandler(parentPid, type.sender);
                 break;
-            case MessageType::STATUS:
-                // TODO: Status
-                break;
             case MessageType::PIZZA:
                 this->pizzaHandler(parentPid, type.sender);
+                break;
+            default:
                 break;
         }
     }
@@ -136,7 +135,7 @@ void plazza::Reception::createKitchen(const plazza::Pizza &firstPizza) {
 }
 
 void plazza::Reception::showStatus() {
-    *this->_logger << "THE PLAZZA" << "";
+    *this->_logger << "" << "THE PLAZZA" << "";
     if (this->_orders.empty()) {
         *this->_logger << "There are no current orders";
     } else {

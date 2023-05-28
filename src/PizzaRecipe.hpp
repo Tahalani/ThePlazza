@@ -16,7 +16,7 @@
 #include "PizzaData.hpp"
 
 namespace plazza {
-    static std::unordered_map<std::string, Ingredients> ingredients_array = {
+    static std::unordered_map<std::string, Ingredients> name_to_ingredient = {
         {"Dough", Ingredients::Dough},
         {"Tomato", Ingredients::Tomato},
         {"Gruyere", Ingredients::Gruyere},
@@ -26,6 +26,18 @@ namespace plazza {
         {"Eggplant", Ingredients::Eggplant},
         {"GoatCheese", Ingredients::GoatCheese},
         {"ChiefLove", Ingredients::ChiefLove}
+    };
+
+    static std::unordered_map<Ingredients, std::string> ingredient_to_name = {
+            {Ingredients::Dough, "Dough" },
+            {Ingredients::Tomato, "Tomato" },
+            {Ingredients::Gruyere, "Gruyere" },
+            {Ingredients::Ham, "Ham" },
+            {Ingredients::Mushrooms, "Mushrooms" },
+            {Ingredients::Steak, "Steak" },
+            {Ingredients::Eggplant, "Eggplant" },
+            {Ingredients::GoatCheese, "GoatCheese" },
+            {Ingredients::ChiefLove, "ChiefLove" }
     };
 
     class RecipeException : std::exception {
@@ -40,11 +52,12 @@ namespace plazza {
 
     class PizzaRecipe {
         public:
-            PizzaRecipe(const std::string& filepath, std::vector<PizzaRecipe> const &_pizzaRecipes);
+            PizzaRecipe();
+            explicit PizzaRecipe(const std::string& filepath);
 
             std::string getName() const;
             size_t getTime() const;
-            std::unordered_map<Ingredients, int> &getIngredients();
+            const std::unordered_map<Ingredients, int> &getIngredients() const;
 
         private:
             std::string _name;

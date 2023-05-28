@@ -41,7 +41,10 @@ namespace plazza {
             void idleRoutine(int idleTime);
             bool canAcceptPizza(const Pizza &pizza);
             void showStatus();
+            void takeIngredients(const PizzaRecipe &recipe);
             long now();
+            void log(const std::string &message);
+            void log(size_t cookId, const std::string &message);
 
             pid_t _parentPid;
             size_t _kitchenId;

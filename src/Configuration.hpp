@@ -34,7 +34,7 @@ namespace plazza {
             [[nodiscard]] float getTimeMultiplier() const;
             [[nodiscard]] int getCooksPerKitchen() const;
             [[nodiscard]] int getRefillTime() const;
-            [[nodiscard]] const std::vector<PizzaRecipe> &getPizzaRecipes() const;
+            [[nodiscard]] PizzaRecipe &getRecipe(const std::string &name);
 
             template<typename T>
             T parse(const std::string &str)
@@ -50,10 +50,10 @@ namespace plazza {
             }
 
             private:
-                std::vector<PizzaRecipe> _pizzaRecipes;
                 float _timeMultiplier;
                 int _cooksPerKitchen;
                 int _refillTime;
+                std::unordered_map<std::string, PizzaRecipe> _pizzaRecipes;
     };
 }
 
