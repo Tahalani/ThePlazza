@@ -43,13 +43,19 @@ namespace plazza {
     struct Pizza {
         std::string type;
         PizzaSize size;
+        bool cooked;
     };
 
-    struct PizzaCommand : Pizza {
+    struct PizzaCommand {
+        std::string type;
+        PizzaSize size;
         int quantity;
     };
 }
 
 bool operator ==(const plazza::Pizza &a, const plazza::Pizza &b);
+
+std::string operator*(const plazza::PizzaSize &size);
+std::string operator*(const plazza::Ingredients &ingredient);
 
 #endif

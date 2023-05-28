@@ -8,17 +8,16 @@
 #ifndef COMMUNICATION_HPP_
 #define COMMUNICATION_HPP_
 
+#include <csignal>
 #include <exception>
 #include <string>
 #include <sys/msg.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 namespace plazza {
     class CommunicationException : std::exception {
         public:
             explicit CommunicationException(std::string message);
-            ~CommunicationException() override = default;
 
             [[nodiscard]] const char *what() const noexcept override;
 
@@ -26,17 +25,17 @@ namespace plazza {
             std::string _message;
     };
 
+    template<typename T>
+    struct Message {
+        long type;
+        pid_t sender;
+        T data;
+    };
+
     class Communication {
         public:
             Communication();
             ~Communication();
-
-            template<typename T>
-            struct Message {
-                long type;
-                pid_t sender;
-                T data;
-            };
 
             template<typename T>
             void sendMessage(const T &data, long target, size_t size = sizeof(T)) {

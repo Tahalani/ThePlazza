@@ -12,13 +12,15 @@
 #include <queue>
 #include <thread>
 #include <vector>
-#include "Communication.hpp"
 #include "Configuration.hpp"
+#include "Logger.hpp"
 #include "PizzaData.hpp"
+#include "PlazzaIPC.hpp"
 
 namespace plazza {
     struct CookStatus {
-        Pizza pizza;
+        std::string type;
+        PizzaSize size;
         long cookTime;
         time_t startTime;
     };
@@ -28,7 +30,7 @@ namespace plazza {
         using Sharable = std::pair<T, std::mutex>;
 
         public:
-            ThreadPool(pid_t parentPid, const Configuration &config, const Communication &ipc);
+            ThreadPool(pid_t parentPid, size_t kitchenId, const Configuration &config, std::shared_ptr<PlazzaIPC> ipc, std::shared_ptr<Logger> logger);
             ~ThreadPool();
 
             void run(const Pizza &firstPizza);
@@ -36,18 +38,28 @@ namespace plazza {
         private:
             void cookRoutine(int cookId);
             void refillRoutine(int refillTime);
+            void idleRoutine(int idleTime);
             bool canAcceptPizza(const Pizza &pizza);
+            void showStatus();
+            void takeIngredients(const PizzaRecipe &recipe);
+            long now();
+            void log(const std::string &message);
+            void log(size_t cookId, const std::string &message);
 
             pid_t _parentPid;
+            size_t _kitchenId;
             Configuration _config;
-            Communication _ipc;
-            std::vector<std::thread> _cooks;
-            std::vector<Sharable<CookStatus>> _cooksStatus;
+            std::shared_ptr<PlazzaIPC> _ipc;
+            std::shared_ptr<Logger> _logger;
+            Sharable<std::vector<CookStatus>> _cooksStatus;
             Sharable<std::queue<Pizza>> _pizzaQueue;
             Sharable<std::vector<int>> _ingredients;
-            std::thread _refill;
-            std::condition_variable _refillCond;
+            Sharable<long> _lastEvent;
             std::condition_variable _cookCond;
+            std::condition_variable _exitCond;
+            std::vector<std::thread> _cooks;
+            std::thread _refill;
+            std::thread _idle;
     };
 }
 

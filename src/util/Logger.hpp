@@ -9,6 +9,7 @@
 #define LOGGER_HPP_
 
 #define LOG_FILEPATH "plazza.log"
+#define DEBUG_FILEPATH "plazza.debug.log"
 
 #include <fstream>
 #include <string>
@@ -20,13 +21,15 @@ namespace plazza {
 
     class Logger {
         public:
-            explicit Logger(const std::string &_filepath = LOG_FILEPATH);
+            explicit Logger(const std::string &filepath = LOG_FILEPATH, const std::string &debugFilepath = DEBUG_FILEPATH);
             ~Logger();
 
-            void operator<<(const std::string &message);
+            Logger &operator<<(const std::string &message);
+            Logger &operator>>(const std::string &message);
 
         private:
-            std::ofstream _file;
+            std::ofstream _log;
+            std::ofstream _debug;
     };
 }
 

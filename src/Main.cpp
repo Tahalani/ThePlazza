@@ -5,6 +5,7 @@
 ** main
 */
 
+#include <iostream>
 #include "Configuration.hpp"
 #include "Reception.hpp"
 #include "PizzaRecipe.hpp"
@@ -26,4 +27,16 @@ int main(int argc, char const *argv[]) {
 
 bool operator ==(const plazza::Pizza &a, const plazza::Pizza &b) {
     return (a.type == b.type && a.size == b.size);
+}
+
+std::string operator*(const plazza::PizzaSize &size) {
+    std::string types[5] = { "S", "M", "L", "XL", "XXL" };
+
+    return types[static_cast<int>(size)];
+}
+
+std::string operator*(const plazza::Ingredients &ingredient) {
+    std::string types[9] = { "Dough", "Tomato", "Gruyere", "Ham", "Mushrooms", "Steak", "Eggplant", "GoatCheese", "ChiefLove" };
+
+    return types[static_cast<int>(ingredient)];
 }

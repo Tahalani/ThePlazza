@@ -9,10 +9,10 @@ SRC			=	src/kitchen/Kitchen.cpp \
 				src/kitchen/ThreadPool.cpp \
 				src/reception/PizzaOrder.cpp \
 				src/reception/Reception.cpp \
-				src/reception/ReceptionIPC.cpp \
 				src/reception/Shell.cpp \
 				src/util/Communication.cpp \
 				src/util/Logger.cpp \
+				src/util/PlazzaIPC.cpp \
 				src/Configuration.cpp \
 				src/PizzaRecipe.cpp \
 				src/Main.cpp
@@ -32,7 +32,8 @@ $(NAME): $(OBJ)
 	g++ $(CXXFLAGS) -o $(NAME) $(OBJ) $(LDLIBS)
 
 clean:
-	rm -f *.gcda *.gcno
+	$(RM) $(OBJ)
+	$(RM) *.gcda *.gcno
 
 debug: CXXFLAGS += -g3
 debug: re

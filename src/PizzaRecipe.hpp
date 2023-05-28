@@ -8,13 +8,15 @@
 #ifndef PIZZA_RECIPE_HPP_
 #define PIZZA_RECIPE_HPP_
 
+#define MAX_INGREDIENTS 5
+
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "PizzaData.hpp"
 
 namespace plazza {
-    static std::unordered_map<std::string, Ingredients> ingredients_array = {
+    static std::unordered_map<std::string, Ingredients> name_to_ingredient = {
         {"Dough", Ingredients::Dough},
         {"Tomato", Ingredients::Tomato},
         {"Gruyere", Ingredients::Gruyere},
@@ -26,10 +28,21 @@ namespace plazza {
         {"ChiefLove", Ingredients::ChiefLove}
     };
 
+    static std::unordered_map<Ingredients, std::string> ingredient_to_name = {
+            {Ingredients::Dough, "Dough" },
+            {Ingredients::Tomato, "Tomato" },
+            {Ingredients::Gruyere, "Gruyere" },
+            {Ingredients::Ham, "Ham" },
+            {Ingredients::Mushrooms, "Mushrooms" },
+            {Ingredients::Steak, "Steak" },
+            {Ingredients::Eggplant, "Eggplant" },
+            {Ingredients::GoatCheese, "GoatCheese" },
+            {Ingredients::ChiefLove, "ChiefLove" }
+    };
+
     class RecipeException : std::exception {
         public:
             explicit RecipeException(std::string message);
-            ~RecipeException() override = default;
 
             [[nodiscard]] const char *what() const noexcept override;
 
@@ -39,11 +52,12 @@ namespace plazza {
 
     class PizzaRecipe {
         public:
-            PizzaRecipe(const std::string& filepath, std::vector<PizzaRecipe> const &_pizzaRecipes);
+            PizzaRecipe();
+            explicit PizzaRecipe(const std::string& filepath);
 
-            std::string getName() const { return _name;};
-            int getTime() const { return _time;};
-            std::unordered_map<Ingredients, int> getIngredients() const { return _ingredients;};
+            std::string getName() const;
+            size_t getTime() const;
+            const std::unordered_map<Ingredients, int> &getIngredients() const;
 
         private:
             std::string _name;
