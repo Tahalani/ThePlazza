@@ -38,6 +38,7 @@ namespace plazza {
         private:
             void cookRoutine(int cookId);
             void refillRoutine(int refillTime);
+            void idleRoutine(int idleTime);
             bool canAcceptPizza(const Pizza &pizza);
             void showStatus();
             long now();
@@ -50,10 +51,12 @@ namespace plazza {
             Sharable<std::vector<CookStatus>> _cooksStatus;
             Sharable<std::queue<Pizza>> _pizzaQueue;
             Sharable<std::vector<int>> _ingredients;
+            Sharable<long> _lastEvent;
             std::condition_variable _cookCond;
             std::condition_variable _exitCond;
             std::vector<std::thread> _cooks;
             std::thread _refill;
+            std::thread _idle;
     };
 }
 

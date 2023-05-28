@@ -85,6 +85,7 @@ bool plazza::Reception::exitHandler(pid_t parentPid, pid_t senderPid) {
     }
     for (auto it = this->_kitchens.begin(); it != this->_kitchens.end(); it++) {
         if ((*it)->getKitchenPid() == senderPid) {
+            *this->_ipc << (*it)->getKitchenPid() << MessageType::EXIT;
             this->_kitchens.erase(it);
             return false;
         }
@@ -129,12 +130,8 @@ void plazza::Reception::pizzaHandler(pid_t parentPid, pid_t senderPid) {
 }
 
 void plazza::Reception::createKitchen(const plazza::Pizza &firstPizza) {
-    *this->_logger >> "createKitchen";
     this->_kitchens.emplace_back(std::make_shared<Kitchen>(this->_nextKitchenId, this->_config, this->_ipc, this->_logger));
-    *this->_logger >> std::to_string(this->_kitchens.size());
-    *this->_logger >> "after emplace";
     this->_kitchens[this->_kitchens.size() - 1]->openKitchen(firstPizza);
-    *this->_logger >> "after open";
     this->_nextKitchenId++;
 }
 
@@ -155,7 +152,6 @@ void plazza::Reception::showStatus() {
         *this->_logger << "Current kitchens:";
     }
     for (auto &kitchen : this->_kitchens) {
-        std::cout << kitchen->getKitchenPid() << std::endl;
         *this->_ipc << kitchen->getKitchenPid() << MessageType::STATUS;
     }
 }

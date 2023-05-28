@@ -8,6 +8,8 @@
 #ifndef CONFIGURATION_HPP_
 #define CONFIGURATION_HPP_
 
+#define IDLE_TIME 5000
+
 #include <exception>
 #include <sstream>
 #include <string>

@@ -19,10 +19,6 @@ plazza::Kitchen::~Kitchen() {
 
 }
 
-size_t plazza::Kitchen::getId() const {
-    return this->_id;
-}
-
 pid_t plazza::Kitchen::getKitchenPid() const {
     return this->_kitchen_pid;
 }

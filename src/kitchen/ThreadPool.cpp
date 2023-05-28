@@ -5,15 +5,17 @@
 ** ThreadPool.cpp
 */
 
-#include <iostream>
 #include "ThreadPool.hpp"
 
-plazza::ThreadPool::ThreadPool(pid_t parentPid, size_t kitchenId, const plazza::Configuration &config, std::shared_ptr<plazza::PlazzaIPC> ipc, std::shared_ptr<plazza::Logger> logger): _parentPid(parentPid), _kitchenId(kitchenId), _config(config), _ipc(std::move(ipc)), _logger(std::move(logger)), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())) {
+plazza::ThreadPool::ThreadPool(pid_t parentPid, size_t kitchenId, const plazza::Configuration &config, std::shared_ptr<plazza::PlazzaIPC> ipc, std::shared_ptr<plazza::Logger> logger): _parentPid(parentPid), _kitchenId(kitchenId), _config(config), _ipc(std::move(ipc)), _logger(std::move(logger)), _refill(std::thread(&ThreadPool::refillRoutine, this, config.getRefillTime())), _idle(std::thread(&ThreadPool::idleRoutine, this, IDLE_TIME)) {
     std::unique_lock<std::mutex> lock(this->_ingredients.second);
+
     for (int i = 0; i < config.getCooksPerKitchen(); i++) {
         this->_cooks.emplace_back(&ThreadPool::cookRoutine, this, i);
         this->_cooksStatus.first.emplace_back();
     }
+    lock = std::unique_lock(this->_lastEvent.second);
+    this->_lastEvent.first = this->now();
 }
 
 plazza::ThreadPool::~ThreadPool() {
@@ -31,6 +33,9 @@ plazza::ThreadPool::~ThreadPool() {
     }
     if (this->_refill.joinable()) {
         this->_refill.join();
+    }
+    if (this->_idle.joinable()) {
+        this->_idle.join();
     }
 }
 
@@ -75,6 +80,8 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
         if (this->_pizzaQueue.first.empty()) {
             return;
         }
+        lock = std::unique_lock(this->_lastEvent.second);
+        this->_lastEvent.first = this->now();
         Pizza pizza = this->_pizzaQueue.first.front();
         this->_pizzaQueue.first.pop();
         lock.unlock();
@@ -93,6 +100,8 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
             return;
         }
         pizza.cooked = true;
+        lock = std::unique_lock(this->_lastEvent.second);
+        this->_lastEvent.first = this->now();
         *this->_ipc << this->_parentPid << pizza;
     }
 }
@@ -107,10 +116,38 @@ void plazza::ThreadPool::refillRoutine(int refillTime) {
         }
         for (size_t i = 0; i < this->_ingredients.first.size(); i += 1) {
             this->_ingredients.first[i] = std::min(MAX_INGREDIENTS, this->_ingredients.first[i] + 1);
-            // TODO: Debug refill
         }
     }
 }
+
+void plazza::ThreadPool::idleRoutine(int idleTime) {
+    while (true) {
+        std::unique_lock<std::mutex> lock(this->_pizzaQueue.second);
+        std::cv_status status = this->_exitCond.wait_for(lock, std::chrono::milliseconds(1000));
+
+        if (status == std::cv_status::no_timeout) {
+            return;
+        }
+        std::unique_lock<std::mutex> check(this->_lastEvent.second);
+        long now = this->now();
+        bool shouldExit = true;
+        if (now - this->_lastEvent.first >= idleTime) {
+            check = std::unique_lock<std::mutex>(this->_cooksStatus.second);
+            for (auto &it : this->_cooksStatus.first) {
+                if (now - it.startTime <= (long) it.cookTime) {
+                    shouldExit = false;
+                }
+            }
+            if (shouldExit) {
+                *this->_logger >> ("Kitchen " + std::to_string(this->_parentPid) + " inactive, closing.");
+                *this->_ipc << this->_parentPid << MessageType::EXIT;
+                this->_exitCond.notify_all();
+                return;
+            }
+        }
+    }
+}
+
 
 bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
     (void) pizza; // TODO: fix
