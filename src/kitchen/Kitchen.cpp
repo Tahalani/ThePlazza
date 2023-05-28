@@ -34,6 +34,7 @@ void plazza::Kitchen::openKitchen(const Pizza &firstPizza) {
         throw CommunicationException("fork failed");
     } else if (pid == 0) {
         this->run(firstPizza);
+        this->log("Exiting");
         exit(0);
     } else {
         this->_kitchen_pid = pid;

@@ -106,6 +106,7 @@ void plazza::ThreadPool::cookRoutine(int cookId) {
             return;
         }
         pizza.cooked = true;
+        this->log(cookId, "Finished cooking " + pizza.type + " " + *pizza.size);
         lock = std::unique_lock(this->_lastEvent.second);
         this->_lastEvent.first = this->now();
         *this->_ipc << this->_parentPid << pizza;
@@ -167,6 +168,8 @@ bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
     lock = std::unique_lock<std::mutex>(this->_pizzaQueue.second);
     totalPizzas += (int) this->_pizzaQueue.first.size();
     if (totalPizzas >= this->_config.getCooksPerKitchen() * 2) {
+        lock.unlock();
+        this->log("Cannot take " + pizza.type + " " + *pizza.size + ": queue is full");
         return false;
     }
     lock = std::unique_lock<std::mutex>(this->_ingredients.second);
@@ -175,10 +178,13 @@ bool plazza::ThreadPool::canAcceptPizza(const plazza::Pizza &pizza) {
         [this](const std::pair<Ingredients, int> &ingredient) {
                         return this->_ingredients.first[static_cast<int>(ingredient.first)] < ingredient.second;
                     })) {
+        lock.unlock();
+        this->log("Cannot take " + pizza.type + " " + *pizza.size + ": not enough ingredients");
         return false;
     }
     lock.unlock();
     this->takeIngredients(recipe);
+    this->log("Received pizza " + pizza.type + " " + *pizza.size);
     return true;
 }
 
